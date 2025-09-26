@@ -18,9 +18,10 @@ model User {
   role         UserRole  @default(STUDENT)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  
+
   // Relations
   answers      Answer[]
+  permissions  ExamPermission[]
   
   @@map("users")
 }
@@ -31,12 +32,14 @@ model Exam {
   description String?
   startTime   DateTime
   endTime     DateTime
+  isPublic    Boolean   @default(false) // 是否公开给所有用户
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  
+
   // Relations
   questions   Question[]
-  
+  permissions ExamPermission[]
+
   @@map("exams")
 }
 
@@ -73,6 +76,20 @@ model Answer {
   
   @@unique([questionId, userId])
   @@map("answers")
+}
+
+model ExamPermission {
+  id        String   @id @default(cuid())
+  examId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relations
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, userId])
+  @@map("exam_permissions")
 }
 
 enum UserRole {

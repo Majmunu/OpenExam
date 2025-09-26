@@ -158,77 +158,79 @@ export default function QuestionsPage() {
               <p className="text-gray-500">暂无题目</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>题目</TableHead>
-                  <TableHead>类型</TableHead>
-                  <TableHead>分值</TableHead>
-                  <TableHead>所属考试</TableHead>
-                  <TableHead>创建时间</TableHead>
-                  <TableHead>操作</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {questions.map((question) => (
-                  <TableRow key={question.id}>
-                    <TableCell className="max-w-md">
-                      <div className="truncate" title={question.title}>
-                        {question.title}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getQuestionTypeVariant(question.type)}>
-                        {getQuestionTypeLabel(question.type)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{question.points}</TableCell>
-                    <TableCell>{question.exam.title}</TableCell>
-                    <TableCell>
-                      {new Date(question.createdAt).toLocaleString("zh-CN")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/admin/questions/${question.id}`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/admin/questions/${question.id}/edit`}>
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>确认删除</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                您确定要删除这道题目吗？此操作不可撤销。
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>取消</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(question.id)}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                删除
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[300px]">题目</TableHead>
+                    <TableHead className="min-w-[100px]">类型</TableHead>
+                    <TableHead className="min-w-[80px]">分值</TableHead>
+                    <TableHead className="min-w-[150px]">所属考试</TableHead>
+                    <TableHead className="min-w-[150px]">创建时间</TableHead>
+                    <TableHead className="min-w-[150px]">操作</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {questions.map((question) => (
+                    <TableRow key={question.id}>
+                      <TableCell className="max-w-md">
+                        <div className="truncate" title={question.title}>
+                          {question.title}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getQuestionTypeVariant(question.type)}>
+                          {getQuestionTypeLabel(question.type)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{question.points}</TableCell>
+                      <TableCell>{question.exam.title}</TableCell>
+                      <TableCell>
+                        {new Date(question.createdAt).toLocaleString("zh-CN")}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href={`/admin/questions/${question.id}`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href={`/admin/questions/${question.id}/edit`}>
+                              <Edit className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>确认删除</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  您确定要删除这道题目吗？此操作不可撤销。
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>取消</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDelete(question.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  删除
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

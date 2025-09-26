@@ -72,59 +72,57 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* 侧边栏 */}
-          <div className="lg:w-64">
-            <Card>
-              <div className="p-4">
-                <nav className="space-y-2">
-                  <Link
-                    href="/admin"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                  >
-                    <Home className="h-4 w-4" />
-                    <span>仪表板</span>
-                  </Link>
+      <div className="flex h-[calc(100vh-4rem)]">
+        {/* 侧边栏 - 固定宽度 */}
+        <div className="w-64 bg-white shadow-sm border-r flex-shrink-0">
+          <div className="p-4">
+            <nav className="space-y-2">
+              <Link
+                href="/admin"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <Home className="h-4 w-4" />
+                <span>仪表板</span>
+              </Link>
 
-                  <Link
-                    href="/admin/exams"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                  >
-                    <FileText className="h-4 w-4" />
-                    <span>考试管理</span>
-                  </Link>
+              <Link
+                href="/admin/exams"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <FileText className="h-4 w-4" />
+                <span>考试管理</span>
+              </Link>
 
-                  <Link
-                    href="/admin/questions"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    <span>题目管理</span>
-                  </Link>
+              <Link
+                href="/admin/questions"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>题目管理</span>
+              </Link>
 
-                  <Link
-                    href="/admin/users"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>用户管理</span>
-                  </Link>
+              <Link
+                href="/admin/users"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <Users className="h-4 w-4" />
+                <span>用户管理</span>
+              </Link>
 
-                  <Link
-                    href="/admin/results"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                  >
-                    <FileText className="h-4 w-4" />
-                    <span>成绩管理</span>
-                  </Link>
-                </nav>
-              </div>
-            </Card>
+              <Link
+                href="/admin/results"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <FileText className="h-4 w-4" />
+                <span>成绩管理</span>
+              </Link>
+            </nav>
           </div>
+        </div>
 
-          {/* 主内容区 */}
-          <div className="flex-1">
+        {/* 主内容区 - 可滚动 */}
+        <div className="flex-1 overflow-auto bg-gray-50">
+          <div className="p-6">
             {children}
           </div>
         </div>

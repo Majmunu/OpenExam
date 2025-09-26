@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 
@@ -16,6 +17,7 @@ export default function NewExamPage() {
     description: "",
     startTime: "",
     endTime: "",
+    isPublic: false,
   })
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -116,6 +118,22 @@ export default function NewExamPage() {
                   required
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPublic"
+                  checked={formData.isPublic}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isPublic: checked as boolean })
+                  }
+                />
+                <Label htmlFor="isPublic">公开考试（所有用户都可以看到）</Label>
+              </div>
+              <p className="text-sm text-gray-500">
+                如果不勾选，则需要手动分配权限给特定用户
+              </p>
             </div>
 
             <div className="space-y-2">

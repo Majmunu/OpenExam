@@ -28,6 +28,17 @@ export async function GET(request: NextRequest) {
               points: true,
             }
           },
+          permissions: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              }
+            }
+          },
           _count: {
             select: {
               questions: true
@@ -39,10 +50,20 @@ export async function GET(request: NextRequest) {
         }
       })
     } else {
-      // 学生只能看到当前时间范围内的考试
+      // 学生只能看到有权限的考试
       const now = new Date()
       exams = await prisma.exam.findMany({
         where: {
+          OR: [
+            { isPublic: true }, // 公开考试
+            {
+              permissions: {
+                some: {
+                  userId: session.user.id
+                }
+              }
+            }
+          ],
           startTime: {
             lte: now
           },
@@ -63,10 +84,14 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    console.log("Returning exams:", exams.length, "exams")
     return NextResponse.json(exams)
   } catch (error) {
     console.error("Error fetching exams:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 })
   }
 }
 
@@ -79,7 +104,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, description, startTime, endTime } = await request.json()
+    const { title, description, startTime, endTime, isPublic } = await request.json()
 
     if (!title || !startTime || !endTime) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -91,6 +116,7 @@ export async function POST(request: NextRequest) {
         description,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
+        isPublic: isPublic || false,
       },
       include: {
         _count: {
