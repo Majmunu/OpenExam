@@ -17,7 +17,10 @@ export default function NewExamPage() {
     description: "",
     startTime: "",
     endTime: "",
+    duration: "",
     isPublic: false,
+    passingScore: 60,
+    passingCriteria: "",
   })
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -32,7 +35,10 @@ export default function NewExamPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          duration: formData.duration ? parseInt(formData.duration) : null,
+        }),
       })
 
       if (response.ok) {
@@ -118,6 +124,22 @@ export default function NewExamPage() {
                   required
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="duration">考试时长（分钟）</Label>
+                <Input
+                  id="duration"
+                  name="duration"
+                  type="number"
+                  min="1"
+                  value={formData.duration}
+                  onChange={handleChange}
+                  placeholder="例如：120（2小时）"
+                />
+                <p className="text-sm text-gray-500">
+                  可选，用于设置考试的具体时长。如果不填写，将使用开始时间和结束时间的差值。
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -134,6 +156,40 @@ export default function NewExamPage() {
               <p className="text-sm text-gray-500">
                 如果不勾选，则需要手动分配权限给特定用户
               </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="passingScore">通过分数（百分比）*</Label>
+                <Input
+                  id="passingScore"
+                  name="passingScore"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.passingScore}
+                  onChange={handleChange}
+                  required
+                  placeholder="60"
+                />
+                <p className="text-sm text-gray-500">
+                  学生需要达到此分数才能通过考试
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="passingCriteria">通过标准描述</Label>
+                <Input
+                  id="passingCriteria"
+                  name="passingCriteria"
+                  value={formData.passingCriteria}
+                  onChange={handleChange}
+                  placeholder="例如：60分以上为及格，80分以上为良好，90分以上为优秀"
+                />
+                <p className="text-sm text-gray-500">
+                  可选，用于说明通过标准
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">

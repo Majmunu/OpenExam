@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -17,7 +17,8 @@ interface User {
   role: string
 }
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,11 +31,11 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetchUser()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(`/api/users/${params.id}`)
+      const response = await fetch(`/api/users/${resolvedParams.id}`)
       if (response.ok) {
         const user: User = await response.json()
         setFormData({
@@ -66,7 +67,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
         ...(formData.password && { password: formData.password })
       }
 
-      const response = await fetch(`/api/users/${params.id}`, {
+      const response = await fetch(`/api/users/${resolvedParams.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

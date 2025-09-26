@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,8 @@ interface Question {
   points: number
 }
 
-export default function EditQuestionPage({ params }: { params: { id: string } }) {
+export default function EditQuestionPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [formData, setFormData] = useState({
     examId: "",
     type: "",
@@ -43,7 +44,7 @@ export default function EditQuestionPage({ params }: { params: { id: string } })
   useEffect(() => {
     fetchExams()
     fetchQuestion()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchExams = async () => {
     try {
@@ -57,7 +58,7 @@ export default function EditQuestionPage({ params }: { params: { id: string } })
 
   const fetchQuestion = async () => {
     try {
-      const response = await fetch(`/api/questions/${params.id}`)
+      const response = await fetch(`/api/questions/${resolvedParams.id}`)
       if (response.ok) {
         const question: Question = await response.json()
         setFormData({
@@ -84,7 +85,7 @@ export default function EditQuestionPage({ params }: { params: { id: string } })
     setLoading(true)
 
     try {
-      const response = await fetch(`/api/questions/${params.id}`, {
+      const response = await fetch(`/api/questions/${resolvedParams.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

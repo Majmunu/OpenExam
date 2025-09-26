@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,14 +16,21 @@ interface Exam {
   description: string | null
   startTime: string
   endTime: string
+  duration: number | null
+  passingScore: number
+  passingCriteria: string | null
 }
 
-export default function EditExamPage({ params }: { params: { id: string } }) {
+export default function EditExamPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     startTime: "",
     endTime: "",
+    duration: "",
+    passingScore: 60,
+    passingCriteria: "",
   })
   const [loading, setLoading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -31,11 +38,11 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetchExam()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchExam = async () => {
     try {
-      const response = await fetch(`/api/exams/${params.id}`)
+      const response = await fetch(`/api/exams/${resolvedParams.id}`)
       if (response.ok) {
         const exam: Exam = await response.json()
         setFormData({
@@ -43,6 +50,9 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
           description: exam.description || "",
           startTime: new Date(exam.startTime).toISOString().slice(0, 16),
           endTime: new Date(exam.endTime).toISOString().slice(0, 16),
+          duration: exam.duration ? exam.duration.toString() : "",
+          passingScore: exam.passingScore,
+          passingCriteria: exam.passingCriteria || "",
         })
       } else {
         router.push("/admin/exams")
@@ -60,16 +70,19 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
     setLoading(true)
 
     try {
-      const response = await fetch(`/api/exams/${params.id}`, {
+      const response = await fetch(`/api/exams/${resolvedParams.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          duration: formData.duration ? parseInt(formData.duration) : null,
+        }),
       })
 
       if (response.ok) {
-        router.push(`/admin/exams/${params.id}`)
+        router.push(`/admin/exams/${resolvedParams.id}`)
       } else {
         const error = await response.json()
         alert(error.error || "更新失败")
@@ -102,7 +115,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="outline" size="sm" asChild>
-          <Link href={`/admin/exams/${params.id}`}>
+          <Link href={`/admin/exams/${resolvedParams.id}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回
           </Link>
@@ -158,6 +171,56 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
                   required
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="duration">考试时长（分钟）</Label>
+                <Input
+                  id="duration"
+                  name="duration"
+                  type="number"
+                  min="1"
+                  value={formData.duration}
+                  onChange={handleChange}
+                  placeholder="例如：120（2小时）"
+                />
+                <p className="text-sm text-gray-500">
+                  可选，用于设置考试的具体时长。如果不填写，将使用开始时间和结束时间的差值。
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="passingScore">通过分数（百分比）*</Label>
+                <Input
+                  id="passingScore"
+                  name="passingScore"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.passingScore}
+                  onChange={handleChange}
+                  required
+                  placeholder="60"
+                />
+                <p className="text-sm text-gray-500">
+                  学生需要达到此分数才能通过考试
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="passingCriteria">通过标准描述</Label>
+                <Input
+                  id="passingCriteria"
+                  name="passingCriteria"
+                  value={formData.passingCriteria}
+                  onChange={handleChange}
+                  placeholder="例如：60分以上为及格，80分以上为良好，90分以上为优秀"
+                />
+                <p className="text-sm text-gray-500">
+                  可选，用于说明通过标准
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -174,7 +237,7 @@ export default function EditExamPage({ params }: { params: { id: string } }) {
 
             <div className="flex justify-end space-x-4">
               <Button type="button" variant="outline" asChild>
-                <Link href={`/admin/exams/${params.id}`}>取消</Link>
+                <Link href={`/admin/exams/${resolvedParams.id}`}>取消</Link>
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading && <Save className="h-4 w-4 mr-2 animate-spin" />}

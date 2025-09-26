@@ -22,6 +22,7 @@ model User {
   // Relations
   answers      Answer[]
   permissions  ExamPermission[]
+  answerLogs   AnswerLog[]
   
   @@map("users")
 }
@@ -32,13 +33,17 @@ model Exam {
   description String?
   startTime   DateTime
   endTime     DateTime
+  duration    Int?     // 考试时长（分钟），可选字段
   isPublic    Boolean   @default(false) // 是否公开给所有用户
+  passingScore Int      @default(60)    // 通过分数（百分比）
+  passingCriteria String?               // 通过标准描述
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   // Relations
   questions   Question[]
   permissions ExamPermission[]
+  answerLogs  AnswerLog[]
 
   @@map("exams")
 }
@@ -57,6 +62,7 @@ model Question {
   // Relations
   exam        Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
   answers     Answer[]
+  answerLogs  AnswerLog[]
   
   @@map("questions")
 }
@@ -90,6 +96,47 @@ model ExamPermission {
 
   @@unique([examId, userId])
   @@map("exam_permissions")
+}
+
+model AnswerLog {
+  id            String   @id @default(cuid())
+  answerId      String   // 关联的答案ID
+  userId        String
+  questionId    String
+  examId        String
+  
+  // 用户行为数据
+  ipAddress     String?  // IP地址
+  userAgent     String?  // 浏览器信息
+  browserName   String?  // 浏览器名称
+  browserVersion String? // 浏览器版本
+  osName        String?  // 操作系统名称
+  osVersion     String?  // 操作系统版本
+  deviceType    String?  // 设备类型 (desktop/mobile/tablet)
+  fingerprint   String?  // 设备指纹
+  
+  // 答题行为数据
+  switchCount   Int      @default(0) // 切屏次数
+  duration      Int      @default(0) // 答题时长(秒)
+  focusTime     Int      @default(0) // 专注时间(秒)
+  blurTime      Int      @default(0) // 失焦时间(秒)
+  
+  // 答题过程数据
+  keystrokes    Int      @default(0) // 按键次数
+  mouseClicks   Int      @default(0) // 鼠标点击次数
+  scrollEvents  Int      @default(0) // 滚动事件次数
+  
+  // 时间戳
+  startTime     DateTime @default(now()) // 开始答题时间
+  endTime       DateTime @default(now()) // 结束答题时间
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question      Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  exam          Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  
+  @@map("answer_logs")
 }
 
 enum UserRole {

@@ -116,6 +116,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <FileText className="h-4 w-4" />
                 <span>成绩管理</span>
               </Link>
+
+              <Link
+                href="/admin/logs"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <FileText className="h-4 w-4" />
+                <span>日志管理</span>
+              </Link>
             </nav>
           </div>
         </div>

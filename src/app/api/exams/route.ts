@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, description, startTime, endTime, isPublic } = await request.json()
+    const { title, description, startTime, endTime, duration, isPublic, passingScore, passingCriteria } = await request.json()
 
     if (!title || !startTime || !endTime) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -116,7 +116,10 @@ export async function POST(request: NextRequest) {
         description,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
+        duration,
         isPublic: isPublic || false,
+        passingScore: passingScore || 60,
+        passingCriteria,
       },
       include: {
         _count: {

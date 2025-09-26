@@ -59,7 +59,7 @@ export async function PUT(
     }
 
     const { id } = await params
-    const { title, description, startTime, endTime } = await request.json()
+    const { title, description, startTime, endTime, duration, passingScore, passingCriteria } = await request.json()
 
     const exam = await prisma.exam.update({
       where: { id },
@@ -68,6 +68,9 @@ export async function PUT(
         description,
         startTime: startTime ? new Date(startTime) : undefined,
         endTime: endTime ? new Date(endTime) : undefined,
+        duration,
+        passingScore: passingScore !== undefined ? passingScore : undefined,
+        passingCriteria,
       },
       include: {
         _count: {

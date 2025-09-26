@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ interface Exam {
   description: string | null
   startTime: string
   endTime: string
+  duration: number | null
   questions: Array<{
     id: string
     type: string
@@ -24,18 +25,19 @@ interface Exam {
   }>
 }
 
-export default function ExamDetailPage({ params }: { params: { id: string } }) {
+export default function ExamDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [exam, setExam] = useState<Exam | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     fetchExam()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchExam = async () => {
     try {
-      const response = await fetch(`/api/exams/${params.id}`)
+      const response = await fetch(`/api/exams/${resolvedParams.id}`)
       if (response.ok) {
         const data = await response.json()
         setExam(data)
@@ -52,7 +54,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/exams/${params.id}`, {
+      const response = await fetch(`/api/exams/${resolvedParams.id}`, {
         method: "DELETE",
       })
 
@@ -176,7 +178,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
                 <p className="text-sm mt-1">{exam.description || "暂无描述"}</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">开始时间</label>
                   <p className="text-sm mt-1">{new Date(exam.startTime).toLocaleString("zh-CN")}</p>
@@ -184,6 +186,15 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
                 <div>
                   <label className="text-sm font-medium text-gray-500">结束时间</label>
                   <p className="text-sm mt-1">{new Date(exam.endTime).toLocaleString("zh-CN")}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">考试时长</label>
+                  <p className="text-sm mt-1">
+                    {exam.duration
+                      ? `${exam.duration} 分钟`
+                      : `${Math.round((new Date(exam.endTime).getTime() - new Date(exam.startTime).getTime()) / (1000 * 60))} 分钟（自动计算）`
+                    }
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -193,12 +204,20 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>题目列表</CardTitle>
-                <Button asChild>
-                  <Link href="/admin/questions/new">
-                    <Plus className="h-4 w-4 mr-2" />
-                    添加题目
-                  </Link>
-                </Button>
+                <div className="flex space-x-2">
+                  <Button variant="outline" asChild>
+                    <Link href={`/admin/questions/select?examId=${exam.id}`}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      选择已有题目
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href={`/admin/questions/new?examId=${exam.id}`}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      新建题目
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -206,7 +225,7 @@ export default function ExamDetailPage({ params }: { params: { id: string } }) {
                 <div className="text-center py-8">
                   <p className="text-gray-500">暂无题目</p>
                   <Button asChild className="mt-4">
-                    <Link href="/admin/questions/new">添加第一道题目</Link>
+                    <Link href={`/admin/questions/new?examId=${exam.id}`}>添加第一道题目</Link>
                   </Button>
                 </div>
               ) : (

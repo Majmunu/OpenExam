@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, use } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -30,19 +30,20 @@ interface ExamResult {
 export default function ExamResultPage({
   params
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const resolvedParams = use(params)
   const [result, setResult] = useState<ExamResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [rescoring, setRescoring] = useState(false)
 
   useEffect(() => {
     fetchResult()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchResult = async () => {
     try {
-      const response = await fetch(`/api/scoring?examId=${params.id}`)
+      const response = await fetch(`/api/scoring?examId=${resolvedParams.id}`)
       if (response.ok) {
         const data = await response.json()
         setResult({
@@ -80,7 +81,7 @@ export default function ExamResultPage({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ examId: params.id }),
+        body: JSON.stringify({ examId: resolvedParams.id }),
       })
 
       if (response.ok) {
@@ -205,12 +206,24 @@ export default function ExamResultPage({
                         </div>
                       </div>
 
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">正确答案</label>
-                        <div className="mt-1 p-3 bg-green-50 rounded border border-green-200">
-                          <p className="text-sm text-green-800">{answer.correctAnswer}</p>
+                      {answer.questionType !== "SHORT_ANSWER" && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">正确答案</label>
+                          <div className="mt-1 p-3 bg-green-50 rounded border border-green-200">
+                            <p className="text-sm text-green-800">{answer.correctAnswer}</p>
+                          </div>
                         </div>
-                      </div>
+                      )}
+                      {answer.questionType === "SHORT_ANSWER" && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">参考答案</label>
+                          <div className="mt-1 p-3 bg-blue-50 rounded border border-blue-200">
+                            <p className="text-sm text-blue-800">
+                              简答题没有标准答案，请根据您的理解作答。
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

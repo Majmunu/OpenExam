@@ -61,7 +61,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { questionId, response } = await request.json()
+    const {
+      questionId,
+      response,
+      logData
+    } = await request.json()
 
     if (!questionId || !response) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -155,6 +159,46 @@ export async function POST(request: NextRequest) {
       console.log('Updated score in database:', scoring.score)
     } catch (error) {
       console.error("Error in auto scoring:", error)
+    }
+
+    // 记录答题日志
+    try {
+      if (logData) {
+        const headers = request.headers
+        const userAgent = headers.get('user-agent') || ''
+        const forwarded = headers.get('x-forwarded-for')
+        const realIp = headers.get('x-real-ip')
+        const ipAddress = forwarded?.split(',')[0] || realIp || 'unknown'
+
+        await prisma.answerLog.create({
+          data: {
+            answerId: answer.id,
+            userId: session.user.id,
+            questionId: answer.questionId,
+            examId: question.examId,
+            ipAddress,
+            userAgent,
+            browserName: logData.browserName,
+            browserVersion: logData.browserVersion,
+            osName: logData.osName,
+            osVersion: logData.osVersion,
+            deviceType: logData.deviceType,
+            fingerprint: logData.fingerprint,
+            switchCount: logData.switchCount || 0,
+            duration: logData.duration || 0,
+            focusTime: logData.focusTime || 0,
+            blurTime: logData.blurTime || 0,
+            keystrokes: logData.keystrokes || 0,
+            mouseClicks: logData.mouseClicks || 0,
+            scrollEvents: logData.scrollEvents || 0,
+            startTime: logData.startTime ? new Date(logData.startTime) : new Date(),
+            endTime: logData.endTime ? new Date(logData.endTime) : new Date()
+          }
+        })
+      }
+    } catch (logError) {
+      console.error("Error creating answer log:", logError)
+      // 不阻止答案提交，只记录错误
     }
 
     return NextResponse.json(answer, { status: 201 })

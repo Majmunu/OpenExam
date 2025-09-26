@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,10 +29,16 @@ export default function NewQuestionPage() {
   const [loading, setLoading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const examId = searchParams.get("examId")
 
   useEffect(() => {
     fetchExams()
-  }, [])
+    // 如果URL中有examId参数，自动设置到表单中
+    if (examId) {
+      setFormData(prev => ({ ...prev, examId }))
+    }
+  }, [examId])
 
   const fetchExams = async () => {
     try {
@@ -63,7 +69,12 @@ export default function NewQuestionPage() {
       })
 
       if (response.ok) {
-        router.push("/admin/questions")
+        // 如果是从试卷页面来的，创建成功后返回到试卷页面
+        if (examId) {
+          router.push(`/admin/exams/${examId}`)
+        } else {
+          router.push("/admin/questions")
+        }
       } else {
         const error = await response.json()
         alert(error.error || "创建失败")

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -22,18 +22,19 @@ interface Question {
   }
 }
 
-export default function QuestionDetailPage({ params }: { params: { id: string } }) {
+export default function QuestionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [question, setQuestion] = useState<Question | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     fetchQuestion()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const fetchQuestion = async () => {
     try {
-      const response = await fetch(`/api/questions/${params.id}`)
+      const response = await fetch(`/api/questions/${resolvedParams.id}`)
       if (response.ok) {
         const data = await response.json()
         setQuestion(data)
@@ -50,7 +51,7 @@ export default function QuestionDetailPage({ params }: { params: { id: string } 
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/questions/${params.id}`, {
+      const response = await fetch(`/api/questions/${resolvedParams.id}`, {
         method: "DELETE",
       })
 
