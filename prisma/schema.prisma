@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         UserRole  @default(STUDENT)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // Relations
+  answers      Answer[]
+  
+  @@map("users")
+}
+
+model Exam {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  questions   Question[]
+  
+  @@map("exams")
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  examId      String
+  type        QuestionType
+  title       String
+  options     String?      // JSON string for multiple choice options
+  answer      String       // Correct answer
+  points      Int          @default(1)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  exam        Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+  
+  @@map("questions")
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  questionId String
+  userId     String
+  response   String   // User's answer
+  score      Int?     // Score for this answer (null if not graded)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([questionId, userId])
+  @@map("answers")
+}
+
+enum UserRole {
+  ADMIN
+  STUDENT
+}
+
+enum QuestionType {
+  SINGLE_CHOICE    // 单选题
+  MULTIPLE_CHOICE  // 多选题
+  SHORT_ANSWER     // 简答题
+  FILL_BLANK       // 填空题
+}
