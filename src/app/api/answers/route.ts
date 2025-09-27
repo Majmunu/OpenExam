@@ -117,7 +117,8 @@ export async function POST(request: NextRequest) {
             title: true,
             type: true,
             points: true,
-            answer: true
+            answer: true,
+            options: true
           }
         }
       }

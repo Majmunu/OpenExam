@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
             type: true,
             title: true,
             answer: true,
-            points: true
+            points: true,
+            options: true
           }
         }
       }
