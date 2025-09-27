@@ -42,8 +42,8 @@ export default function InitPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button 
-            onClick={handleInit} 
+          <Button
+            onClick={handleInit}
             disabled={loading}
             className="w-full"
           >
@@ -56,7 +56,7 @@ export default function InitPage() {
                 <div className="space-y-2">
                   <p><strong>状态:</strong> {result.success ? '成功' : '失败'}</p>
                   <p><strong>消息:</strong> {result.message}</p>
-                  
+
                   {result.data && (
                     <div className="mt-4 space-y-2">
                       <p><strong>测试账号:</strong></p>
@@ -66,7 +66,7 @@ export default function InitPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {result.error && (
                     <p className="text-red-600"><strong>错误:</strong> {result.error}</p>
                   )}
