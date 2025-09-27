@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import dynamic from "next/dynamic"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -32,7 +33,11 @@ export default function ExamsPage() {
 
   const fetchExams = async () => {
     try {
-      const response = await fetch("/api/exams?role=admin")
+      // 使用绝对 URL 避免构建时的 URL 解析问题
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const apiUrl = `${baseUrl}/api/exams?role=admin`
+
+      const response = await fetch(apiUrl)
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`)
@@ -57,7 +62,8 @@ export default function ExamsPage() {
 
   const handleDelete = async (examId: string) => {
     try {
-      const response = await fetch(`/api/exams/${examId}`, {
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const response = await fetch(`${baseUrl}/api/exams/${examId}`, {
         method: "DELETE",
       })
 

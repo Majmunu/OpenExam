@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "codespaces:start": "bash scripts/codespaces-start.sh",
+    "codespaces:setup": "npx prisma generate && npx prisma db push && npm run db:seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
