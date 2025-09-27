@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, QuestionType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -43,28 +43,28 @@ async function main() {
   // 创建示例题目
   const questions = [
     {
-      type: 'SINGLE_CHOICE',
+      type: QuestionType.SINGLE_CHOICE,
       title: 'JavaScript中声明变量的关键字有哪些？',
       options: JSON.stringify(['var', 'let', 'const', '以上都是']),
       answer: '以上都是',
       points: 2,
     },
     {
-      type: 'MULTIPLE_CHOICE',
+      type: QuestionType.MULTIPLE_CHOICE,
       title: '以下哪些是JavaScript的数据类型？',
       options: JSON.stringify(['string', 'number', 'boolean', 'object', 'function']),
       answer: 'string,number,boolean,object,function',
       points: 3,
     },
     {
-      type: 'SHORT_ANSWER',
+      type: QuestionType.SHORT_ANSWER,
       title: '请简述JavaScript中闭包的概念和作用。',
       options: null,
       answer: '闭包是指有权访问另一个函数作用域中变量的函数。',
       points: 5,
     },
     {
-      type: 'FILL_BLANK',
+      type: QuestionType.FILL_BLANK,
       title: 'JavaScript中，___ 关键字用于声明常量。',
       options: null,
       answer: 'const',
