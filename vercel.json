@@ -1,7 +1,8 @@
 {
+  "buildCommand": "npm run vercel-build",
   "env": {
     "DATABASE_URL": "postgres://1460dc61d1f2f8486556ff4d6511917bdc8e4292670592d6912d8e2fa7237a85:sk_aJDkOTelEHCDyaXXgVK2G@db.prisma.io:5432/postgres?sslmode=require",
-    "NEXTAUTH_URL": "https://your-project-name.vercel.app",
+    "NEXTAUTH_URL": "https://open-exam.vercel.app/",
     "NEXTAUTH_SECRET": "363x34mVUiUxmzB7m3huYjB8TjourJ346sYdJIz71Rc="
   }
 }
