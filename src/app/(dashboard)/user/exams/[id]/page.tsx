@@ -1,6 +1,13 @@
 "use client"
 
 import { useEffect, useState, useRef, use } from "react"
+
+// 扩展 Window 接口以包含自定义属性
+declare global {
+  interface Window {
+    behaviorCleanup?: () => void
+  }
+}
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
