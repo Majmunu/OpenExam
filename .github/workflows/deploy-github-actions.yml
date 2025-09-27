@@ -1,0 +1,117 @@
+name: Deploy with GitHub Actions
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: exam_system
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Setup database
+      run: |
+        npx prisma generate
+        npx prisma db push
+        npm run db:seed
+      env:
+        DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/exam_system"
+        NEXTAUTH_URL: "http://localhost:3000"
+        NEXTAUTH_SECRET: "test-secret"
+        
+    - name: Run tests
+      run: npm run build
+      env:
+        DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/exam_system"
+        NEXTAUTH_URL: "http://localhost:3000"
+        NEXTAUTH_SECRET: "test-secret"
+        
+    - name: Create deployment artifact
+      run: |
+        mkdir -p deployment
+        cp -r .next deployment/
+        cp -r prisma deployment/
+        cp -r public deployment/
+        cp package*.json deployment/
+        cp next.config.ts deployment/
+        cp tsconfig.json deployment/
+        
+    - name: Upload deployment artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-files
+        path: deployment/
+        retention-days: 30
+
+  deploy-to-server:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Download deployment artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: deployment-files
+        path: deployment/
+        
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          # 停止现有服务
+          pm2 stop exam-system || true
+          pm2 delete exam-system || true
+          
+          # 创建部署目录
+          mkdir -p /opt/exam-system
+          cd /opt/exam-system
+          
+          # 下载新版本
+          wget -O deployment.tar.gz ${{ github.server_url }}/${{ github.repository }}/actions/artifacts/${{ github.artifact_id }}/zip
+          tar -xzf deployment.tar.gz
+          
+          # 安装依赖
+          npm ci --production
+          
+          # 设置数据库
+          npx prisma generate
+          npx prisma db push
+          
+          # 启动服务
+          pm2 start npm --name "exam-system" -- start
+          pm2 save
+          
+          # 设置开机自启
+          pm2 startup
