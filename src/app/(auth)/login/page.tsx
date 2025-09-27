@@ -106,11 +106,11 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        <div className="text-center text-sm text-gray-600">
-          <p>测试账号：</p>
-          <p>管理员：admin@example.com / admin123</p>
-          <p>用户：user@example.com / user123</p>
-        </div>
+        {/*<div className="text-center text-sm text-gray-600">*/}
+        {/*  <p>测试账号：</p>*/}
+        {/*  <p>管理员：admin@example.com / admin123</p>*/}
+        {/*  <p>用户：user@example.com / user123</p>*/}
+        {/*</div>*/}
       </div>
     </div>
   )

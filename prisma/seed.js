@@ -6,6 +6,14 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('开始种子数据初始化...')
 
+  // 检查是否已有数据
+  const existingUsers = await prisma.user.count()
+  if (existingUsers > 0) {
+    console.log('⚠️  检测到现有用户数据，跳过种子数据初始化')
+    console.log('✅ 数据库已包含数据，无需重新初始化')
+    return
+  }
+
   // 创建管理员用户
   const hashedAdminPassword = await bcrypt.hash('admin123', 10)
   const admin = await prisma.user.upsert({
