@@ -17,16 +17,16 @@ async function main() {
     },
   })
 
-  // 创建学生用户
-  const studentPassword = await bcrypt.hash('student123', 12)
-  const student = await prisma.user.upsert({
-    where: { email: 'student@example.com' },
+  // 创建用户
+  const userPassword = await bcrypt.hash('user123', 12)
+  await prisma.user.upsert({
+    where: { email: 'user@example.com' },
     update: {},
     create: {
-      name: '学生',
-      email: 'student@example.com',
-      passwordHash: studentPassword,
-      role: 'STUDENT',
+      name: '用户',
+      email: 'user@example.com',
+      passwordHash: userPassword,
+      role: 'USER',
     },
   })
 
@@ -83,7 +83,7 @@ async function main() {
 
   console.log('种子数据创建完成！')
   console.log('管理员账号: admin@example.com / admin123')
-  console.log('学生账号: student@example.com / student123')
+  console.log('用户账号: user@example.com / user123')
 }
 
 main()

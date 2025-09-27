@@ -133,7 +133,7 @@ export default function NewUserPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ADMIN">管理员</SelectItem>
-                    <SelectItem value="STUDENT">学生</SelectItem>
+                    <SelectItem value="USER">用户</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

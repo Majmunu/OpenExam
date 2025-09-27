@@ -65,7 +65,7 @@ export default function ExamPermissionsPage() {
       const usersResponse = await fetch("/api/users")
       if (usersResponse.ok) {
         const usersData = await usersResponse.json()
-        setUsers(usersData.filter((user: any) => user.role === "STUDENT"))
+        setUsers(usersData.filter((user: any) => user.role === "USER"))
       }
     } catch (error) {
       console.error("Error fetching data:", error)

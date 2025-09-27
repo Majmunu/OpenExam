@@ -5,7 +5,7 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token
     const isAdmin = token?.role === "ADMIN"
-    const isStudent = token?.role === "STUDENT"
+    const isUser = token?.role === "USER"
     const isAuthPage = req.nextUrl.pathname.startsWith("/login")
 
     // Redirect to login if not authenticated and not on auth page
@@ -17,18 +17,18 @@ export default withAuth(
     if (token && isAuthPage) {
       if (isAdmin) {
         return NextResponse.redirect(new URL("/admin", req.url))
-      } else if (isStudent) {
-        return NextResponse.redirect(new URL("/student", req.url))
+      } else if (isUser) {
+        return NextResponse.redirect(new URL("/user", req.url))
       }
     }
 
     // Protect admin routes
     if (req.nextUrl.pathname.startsWith("/admin") && !isAdmin) {
-      return NextResponse.redirect(new URL("/student", req.url))
+      return NextResponse.redirect(new URL("/user", req.url))
     }
 
-    // Protect student routes
-    if (req.nextUrl.pathname.startsWith("/student") && !isStudent) {
+    // Protect user routes
+    if (req.nextUrl.pathname.startsWith("/user") && !isUser) {
       return NextResponse.redirect(new URL("/admin", req.url))
     }
   },
@@ -43,5 +43,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ["/admin/:path*", "/student/:path*", "/login"]
+  matcher: ["/admin/:path*", "/user/:path*", "/login"]
 }

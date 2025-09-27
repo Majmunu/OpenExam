@@ -114,7 +114,7 @@ export default function HistoryPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">暂无考试记录</h3>
             <p className="text-gray-500">您还没有参加过任何考试。</p>
             <Button asChild className="mt-4">
-              <Link href="/student">去参加考试</Link>
+              <Link href="/user">去参加考试</Link>
             </Button>
           </CardContent>
         </Card>
@@ -172,7 +172,7 @@ export default function HistoryPage() {
                     </TableCell>
                     <TableCell>
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/student/exams/${result.examId}/result`}>
+                        <Link href={`/user/exams/${result.examId}/result`}>
                           <Eye className="h-4 w-4 mr-2" />
                           查看详情
                         </Link>

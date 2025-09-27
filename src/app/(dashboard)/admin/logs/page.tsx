@@ -191,7 +191,7 @@ export default function LogsPage() {
       const response = await fetch("/api/users")
       if (response.ok) {
         const data = await response.json()
-        setUsers(data.filter((user: any) => user.role === "STUDENT"))
+        setUsers(data.filter((user: any) => user.role === "USER"))
       }
     } catch (error) {
       console.error("Error fetching users:", error)

@@ -55,7 +55,7 @@ export default function UsersPage() {
   }
 
   const getRoleLabel = (role: string) => {
-    return role === "ADMIN" ? "管理员" : "学生"
+    return role === "ADMIN" ? "管理员" : "用户"
   }
 
   const getRoleVariant = (role: string) => {

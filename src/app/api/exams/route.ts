@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         }
       })
     } else {
-      // 学生只能看到有权限的考试
+      // 用户只能看到有权限的考试
       const now = new Date()
       exams = await prisma.exam.findMany({
         where: {

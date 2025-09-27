@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      env:
+        DATABASE_URL: "file:./test.db"
+        NEXTAUTH_URL: "http://localhost:3000"
+        NEXTAUTH_SECRET: "test-secret"
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## Changes in this Release
+          
+          ### Features
+          - Intelligent examination system with behavioral analysis
+          - Anti-cheating detection and monitoring
+          - Advanced permission management
+          - Real-time data visualization
+          
+          ### Technical Improvements
+          - Next.js 15 with App Router
+          - Prisma ORM with multiple database support
+          - Docker containerization
+          - GitHub Actions CI/CD
+          
+          ### Deployment
+          - Vercel, Netlify, Railway support
+          - Docker deployment ready
+          - Database migration guides
+        draft: false
+        prerelease: false

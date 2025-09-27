@@ -18,7 +18,7 @@ interface Exam {
   }
 }
 
-export default function StudentDashboard() {
+export default function UserDashboard() {
   const [exams, setExams] = useState<Exam[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -138,7 +138,7 @@ export default function StudentDashboard() {
                       </span>
 
                       <Button asChild>
-                        <Link href={`/student/exams/${exam.id}`}>
+                        <Link href={`/user/exams/${exam.id}`}>
                           开始考试
                         </Link>
                       </Button>

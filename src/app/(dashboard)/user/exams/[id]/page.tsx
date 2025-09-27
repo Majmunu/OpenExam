@@ -242,11 +242,11 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
         const data = await response.json()
         setExam(data)
       } else {
-        router.push("/student")
+        router.push("/user")
       }
     } catch (error) {
       console.error("Error fetching exam:", error)
-      router.push("/student")
+      router.push("/user")
     } finally {
       setLoading(false)
     }
@@ -372,7 +372,7 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
 
       // 提交考试
       alert("考试已提交")
-      router.push("/student")
+      router.push("/user")
     } catch (error) {
       console.error("Error submitting exam:", error)
       alert("提交失败")

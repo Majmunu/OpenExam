@@ -16,7 +16,7 @@ export default function Home() {
     } else if (session.user.role === "ADMIN") {
       router.push("/admin")
     } else {
-      router.push("/student")
+      router.push("/user")
     }
   }, [session, status, router])
 

@@ -14,7 +14,7 @@ import {
   FileText
 } from "lucide-react"
 
-export default function StudentLayout({ children }: { children: React.ReactNode }) {
+export default function UserLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
   const router = useRouter()
 
@@ -24,7 +24,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       router.push("/login")
       return
     }
-    if (session.user.role !== "STUDENT") {
+    if (session.user.role !== "USER") {
       router.push("/admin")
       return
     }
@@ -38,7 +38,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     )
   }
 
-  if (!session || session.user.role !== "STUDENT") {
+  if (!session || session.user.role !== "USER") {
     return null
   }
 
@@ -52,7 +52,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link href="/student" className="flex items-center space-x-2">
+              <Link href="/user" className="flex items-center space-x-2">
                 <BookOpen className="h-8 w-8 text-blue-600" />
                 <span className="text-xl font-bold text-gray-900">考试系统</span>
               </Link>
@@ -77,7 +77,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           <div className="p-4">
             <nav className="space-y-2">
               <Link
-                href="/student"
+                href="/user"
                 className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
               >
                 <Home className="h-4 w-4" />
@@ -85,7 +85,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               </Link>
 
               <Link
-                href="/student/exams"
+                href="/user/exams"
                 className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
               >
                 <FileText className="h-4 w-4" />
@@ -93,7 +93,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               </Link>
 
               <Link
-                href="/student/history"
+                href="/user/history"
                 className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
               >
                 <Clock className="h-4 w-4" />

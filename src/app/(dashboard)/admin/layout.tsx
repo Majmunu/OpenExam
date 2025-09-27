@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return
     }
     if (session.user.role !== "ADMIN") {
-      router.push("/student")
+      router.push("/user")
       return
     }
   }, [session, status, router])

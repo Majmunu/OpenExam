@@ -173,7 +173,7 @@ export default function NewExamPage() {
                   placeholder="60"
                 />
                 <p className="text-sm text-gray-500">
-                  学生需要达到此分数才能通过考试
+                  用户需要达到此分数才能通过考试
                 </p>
               </div>
 

@@ -37,7 +37,7 @@ export default function LoginPage() {
         if (session?.user.role === "ADMIN") {
           router.push("/admin")
         } else {
-          router.push("/student")
+          router.push("/user")
         }
       }
     } catch (error) {
@@ -109,7 +109,7 @@ export default function LoginPage() {
         <div className="text-center text-sm text-gray-600">
           <p>测试账号：</p>
           <p>管理员：admin@example.com / admin123</p>
-          <p>学生：student@example.com / student123</p>
+          <p>用户：user@example.com / user123</p>
         </div>
       </div>
     </div>

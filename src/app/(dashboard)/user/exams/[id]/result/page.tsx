@@ -128,7 +128,7 @@ export default function ExamResultPage({
       <div className="text-center py-8">
         <p className="text-gray-500">未找到考试结果</p>
         <Button asChild className="mt-4">
-          <Link href="/student">返回首页</Link>
+          <Link href="/user">返回首页</Link>
         </Button>
       </div>
     )
@@ -138,7 +138,7 @@ export default function ExamResultPage({
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="outline" size="sm" asChild>
-          <Link href="/student">
+          <Link href="/user">
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回
           </Link>
@@ -287,14 +287,14 @@ export default function ExamResultPage({
                 </Button>
 
                 <Button asChild className="w-full">
-                  <Link href="/student">
+                  <Link href="/user">
                     <Home className="h-4 w-4 mr-2" />
                     返回首页
                   </Link>
                 </Button>
 
                 <Button variant="outline" asChild className="w-full">
-                  <Link href="/student/history">
+                  <Link href="/user/history">
                     查看历史记录
                   </Link>
                 </Button>

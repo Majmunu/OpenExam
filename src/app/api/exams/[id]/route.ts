@@ -31,8 +31,8 @@ export async function GET(
       return NextResponse.json({ error: "Exam not found" }, { status: 404 })
     }
 
-    // 如果是学生，检查考试时间
-    if (session.user.role === "STUDENT") {
+    // 如果是用户，检查考试时间
+    if (session.user.role === "USER") {
       const now = new Date()
       if (now < exam.startTime || now > exam.endTime) {
         return NextResponse.json({ error: "Exam not available" }, { status: 403 })

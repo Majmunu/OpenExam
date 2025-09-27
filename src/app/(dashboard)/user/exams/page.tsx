@@ -20,7 +20,7 @@ interface Exam {
   }
 }
 
-export default function StudentExamsPage() {
+export default function UserExamsPage() {
   const [exams, setExams] = useState<Exam[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -180,7 +180,7 @@ export default function StudentExamsPage() {
                   <div className="mt-4">
                     {status.label === "进行中" ? (
                       <Button asChild className="w-full">
-                        <Link href={`/student/exams/${exam.id}`}>
+                        <Link href={`/user/exams/${exam.id}`}>
                           开始考试
                         </Link>
                       </Button>
