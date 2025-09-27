@@ -32,18 +32,30 @@ interface ExamResult {
 export default function ResultDetailPage({
   params
 }: {
-  params: { examId: string; userId: string }
+  params: Promise<{ examId: string; userId: string }>
 }) {
   const [result, setResult] = useState<ExamResult | null>(null)
   const [loading, setLoading] = useState(true)
+  const [resolvedParams, setResolvedParams] = useState<{ examId: string; userId: string } | null>(null)
 
   useEffect(() => {
-    fetchResult()
-  }, [params.examId, params.userId])
+    // 解析 params Promise
+    params.then((resolved) => {
+      setResolvedParams(resolved)
+    })
+  }, [params])
+
+  useEffect(() => {
+    if (resolvedParams) {
+      fetchResult()
+    }
+  }, [resolvedParams])
 
   const fetchResult = async () => {
+    if (!resolvedParams) return
+    
     try {
-      const response = await fetch(`/api/results/${params.examId}/${params.userId}`)
+      const response = await fetch(`/api/results/${resolvedParams.examId}/${resolvedParams.userId}`)
       if (response.ok) {
         const data = await response.json()
         setResult(data)
