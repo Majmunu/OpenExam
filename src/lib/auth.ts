@@ -121,8 +121,8 @@ export const authOptions: NextAuthOptions = {
             await prisma.loginLog.create({
               data: {
                 userId: user.id,
-                userEmail: user.email,
-                userName: user.name,
+                userEmail: user.email || 'unknown@example.com',
+                userName: user.name || 'Unknown User',
                 ipAddress: ipAddress,
                 userAgent: userAgent,
                 browserName: browserInfo.browserName,
