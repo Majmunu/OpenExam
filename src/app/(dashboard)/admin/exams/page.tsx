@@ -101,13 +101,13 @@ export default function ExamsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 animate-fade-in-up">
+      <div className="flex justify-between items-center animate-fade-in-down">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">考试管理</h1>
           <p className="text-gray-600">管理所有考试</p>
         </div>
-        <Button asChild>
+        <Button asChild className="btn-animate">
           <Link href="/admin/exams/new">
             <Plus className="h-4 w-4 mr-2" />
             新建考试

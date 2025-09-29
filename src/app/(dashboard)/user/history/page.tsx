@@ -31,39 +31,57 @@ export default function HistoryPage() {
     try {
       // 获取所有考试
       const examsResponse = await fetch("/api/exams")
-      const exams = await examsResponse.json()
+
+      if (!examsResponse.ok) {
+        throw new Error(`Failed to fetch exams: ${examsResponse.statusText}`)
+      }
+
+      const examsData = await examsResponse.json()
+      const exams = Array.isArray(examsData) ? examsData : []
 
       // 获取所有答案
       const answersResponse = await fetch("/api/answers")
-      const answers = await answersResponse.json()
+
+      if (!answersResponse.ok) {
+        throw new Error(`Failed to fetch answers: ${answersResponse.statusText}`)
+      }
+
+      const answersData = await answersResponse.json()
+
+      // 确保answers是数组
+      const answers = Array.isArray(answersData) ? answersData : []
+
+      console.log("Answers data:", answersData) // 调试日志
 
       // 按考试分组计算成绩
       const examResults: Record<string, ExamResult> = {}
 
-      answers.forEach((answer: any) => {
-        const examId = answer.question.exam.id
-        const examTitle = answer.question.exam.title
+      if (Array.isArray(answers)) {
+        answers.forEach((answer: any) => {
+          const examId = answer.question.exam.id
+          const examTitle = answer.question.exam.title
 
-        if (!examResults[examId]) {
-          examResults[examId] = {
-            examId,
-            examTitle,
-            totalScore: 0,
-            maxScore: 0,
-            correctCount: 0,
-            totalQuestions: 0,
-            scorePercentage: 0,
-            submittedAt: answer.updatedAt
+          if (!examResults[examId]) {
+            examResults[examId] = {
+              examId,
+              examTitle,
+              totalScore: 0,
+              maxScore: 0,
+              correctCount: 0,
+              totalQuestions: 0,
+              scorePercentage: 0,
+              submittedAt: answer.updatedAt
+            }
           }
-        }
 
-        examResults[examId].totalScore += answer.score || 0
-        examResults[examId].maxScore += answer.question.points
-        examResults[examId].totalQuestions += 1
-        if (answer.score === answer.question.points) {
-          examResults[examId].correctCount += 1
-        }
-      })
+          examResults[examId].totalScore += answer.score || 0
+          examResults[examId].maxScore += answer.question.points
+          examResults[examId].totalQuestions += 1
+          if (answer.score === answer.question.points) {
+            examResults[examId].correctCount += 1
+          }
+        })
+      }
 
       // 计算百分比
       Object.values(examResults).forEach(result => {

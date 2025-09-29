@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BookOpen, Users, FileText, Clock, TrendingUp, Award, CheckCircle, AlertCircle } from "lucide-react"
+import { CardTransition, ListItemTransition } from "@/components/ui/page-transition"
 import {
   BarChart,
   Bar,
@@ -111,72 +112,75 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-6 animate-fade-in-up">
+      <div className="animate-fade-in-down">
         <h1 className="text-3xl font-bold text-gray-900">管理员仪表板</h1>
         <p className="text-gray-600">欢迎来到考试管理系统后台</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-slate-100 hover:shadow-xl transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">总考试数</CardTitle>
-            <div className="p-2 bg-slate-500 rounded-lg">
-              <FileText className="h-4 w-4 text-white" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-800">{stats.totalExams}</div>
-            <p className="text-xs text-gray-600 mt-1">
-              系统中所有考试
-            </p>
-          </CardContent>
-        </Card>
+        <CardTransition>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-slate-100 card-animate">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">总考试数</CardTitle>
+              <div className="p-2 bg-slate-500 rounded-lg">
+                <FileText className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-gray-800">{stats.totalExams}</div>
+              <p className="text-xs text-gray-600 mt-1">
+                系统中所有考试
+              </p>
+            </CardContent>
+          </Card>
+        </CardTransition>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">进行中考试</CardTitle>
-            <div className="p-2 bg-blue-500 rounded-lg">
-              <Clock className="h-4 w-4 text-white" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{stats.activeExams}</div>
-            <p className="text-xs text-gray-600 mt-1">
-              当前可参加的考试
-            </p>
-          </CardContent>
-        </Card>
+        <CardTransition>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">进行中考试</CardTitle>
+              <div className="p-2 bg-blue-500 rounded-lg">
+                <Clock className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-600">{stats.activeExams}</div>
+              <p className="text-xs text-gray-600 mt-1">
+                当前可参加的考试
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-xl transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">已完成考试</CardTitle>
-            <div className="p-2 bg-green-500 rounded-lg">
-              <CheckCircle className="h-4 w-4 text-white" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{stats.completedExams}</div>
-            <p className="text-xs text-gray-600 mt-1">
-              已结束的考试
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">已完成考试</CardTitle>
+              <div className="p-2 bg-green-500 rounded-lg">
+                <CheckCircle className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-green-600">{stats.completedExams}</div>
+              <p className="text-xs text-gray-600 mt-1">
+                已结束的考试
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-xl transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">总用户数</CardTitle>
-            <div className="p-2 bg-purple-500 rounded-lg">
-              <Users className="h-4 w-4 text-white" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">{stats.totalUsers}</div>
-            <p className="text-xs text-gray-600 mt-1">
-              注册用户总数
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">总用户数</CardTitle>
+              <div className="p-2 bg-purple-500 rounded-lg">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-600">{stats.totalUsers}</div>
+              <p className="text-xs text-gray-600 mt-1">
+                注册用户总数
+              </p>
+            </CardContent>
+          </Card>
       </div>
 
       {/* 图表展示区域 */}

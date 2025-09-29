@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession, signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -17,10 +17,12 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { logLogout } from "@/lib/login-logger"
+import { PageTransition } from "@/components/ui/page-transition"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (status === "loading") return
@@ -54,6 +56,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     signOut({ callbackUrl: "/login" })
   }
 
+  // 判断导航项是否选中
+  const isActive = (href: string) => {
+    if (href === "/admin") {
+      return pathname === "/admin"
+    }
+    return pathname.startsWith(href)
+  }
+
+  // 获取导航项的样式类
+  const getNavItemClass = (href: string) => {
+    const baseClass = "flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium nav-item-animate"
+    const activeClass = "active"
+    const inactiveClass = "text-gray-600 hover:text-gray-900"
+
+    return `${baseClass} ${isActive(href) ? activeClass : inactiveClass}`
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b">
@@ -81,12 +100,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div className="flex h-[calc(100vh-4rem)]">
         {/* 侧边栏 - 固定宽度 */}
-        <div className="w-64 bg-white shadow-sm border-r flex-shrink-0">
+        <div className="w-64 sidebar-modern shadow-sm border-r flex-shrink-0">
           <div className="p-4">
             <nav className="space-y-2">
               <Link
                 href="/admin"
-                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className={getNavItemClass("/admin")}
               >
                 <Home className="h-4 w-4" />
                 <span>仪表板</span>
@@ -94,7 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <Link
                 href="/admin/exams"
-                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className={getNavItemClass("/admin/exams")}
               >
                 <FileText className="h-4 w-4" />
                 <span>考试管理</span>
@@ -102,7 +121,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <Link
                 href="/admin/questions"
-                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className={getNavItemClass("/admin/questions")}
               >
                 <BookOpen className="h-4 w-4" />
                 <span>题目管理</span>
@@ -110,7 +129,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <Link
                 href="/admin/users"
-                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className={getNavItemClass("/admin/users")}
               >
                 <Users className="h-4 w-4" />
                 <span>用户管理</span>
@@ -118,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <Link
                 href="/admin/results"
-                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className={getNavItemClass("/admin/results")}
               >
                 <FileText className="h-4 w-4" />
                 <span>成绩管理</span>
@@ -126,7 +145,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <Link
                 href="/admin/logs"
-                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className={getNavItemClass("/admin/logs")}
               >
                 <FileText className="h-4 w-4" />
                 <span>日志管理</span>
@@ -134,7 +153,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <Link
                 href="/admin/login-logs"
-                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                className={getNavItemClass("/admin/login-logs")}
               >
                 <Shield className="h-4 w-4" />
                 <span>登录日志</span>
@@ -146,7 +165,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* 主内容区 - 可滚动 */}
         <div className="flex-1 overflow-auto bg-gray-50">
           <div className="p-6">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </div>
         </div>
       </div>
