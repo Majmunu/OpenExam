@@ -129,10 +129,10 @@
   top: 0;
   height: 100%;
   width: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 0 8px 8px 0;
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 .nav-item-animate::after {
@@ -145,7 +145,7 @@
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 6px solid #667eea;
+  border-top: 6px solid #3b82f6;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -160,17 +160,17 @@
 }
 
 .nav-item-animate.active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  color: #4f46e5;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
+  color: #1d4ed8;
   font-weight: 600;
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.15);
 }
 
 .nav-item-animate.active::before {
   width: 4px;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+  box-shadow: 0 0 20px rgba(29, 78, 216, 0.4);
 }
 
 .nav-item-animate.active::after {
@@ -184,12 +184,12 @@
 
 .nav-item-animate:hover svg {
   transform: scale(1.1);
-  color: #4f46e5;
+  color: #1d4ed8;
 }
 
 .nav-item-animate.active svg {
   transform: scale(1.1);
-  color: #4f46e5;
+  color: #1d4ed8;
 }
 
 /* 导航文字动画 */
@@ -207,8 +207,8 @@
 
 /* 现代化侧边栏背景 */
 .sidebar-modern {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-right: 1px solid rgba(226, 232, 240, 0.8);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-right: 1px solid rgba(203, 213, 225, 0.8);
   backdrop-filter: blur(10px);
 }
 
