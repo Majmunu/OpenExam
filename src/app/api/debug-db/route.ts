@@ -16,7 +16,7 @@ export async function GET() {
 
     // 获取登录日志数量
     let loginLogCount = 0
-    let recentLoginLogs = []
+    let recentLoginLogs: any[] = []
 
     try {
       loginLogCount = await prisma.loginLog.count()

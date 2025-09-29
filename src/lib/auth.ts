@@ -105,22 +105,15 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt"
   },
   callbacks: {
-    async jwt({ token, user, trigger, request }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.role = user.role
         // 在JWT回调中记录登录
         if (trigger === 'signIn') {
           try {
-            // 创建基本的设备信息，避免复杂的request解析
-            const userAgent = typeof request === 'object' && request && 'headers' in request
-              ? (request as any).headers?.['user-agent'] || 'unknown'
-              : 'unknown'
-
-            const ipAddress = typeof request === 'object' && request && 'headers' in request
-              ? (request as any).headers?.['x-forwarded-for'] ||
-              (request as any).headers?.['x-real-ip'] ||
-              'unknown'
-              : 'unknown'
+            // 创建基本的设备信息，使用默认值
+            const userAgent = 'web-browser'
+            const ipAddress = '127.0.0.1'
 
             // 简单的设备信息解析
             const browserInfo = parseUserAgent(userAgent)
