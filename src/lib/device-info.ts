@@ -29,7 +29,7 @@ export function getDeviceInfoFromHeaders(headers: Headers): Partial<DeviceInfo> 
   }
 }
 
-function parseUserAgent(userAgent: string) {
+export function parseUserAgent(userAgent: string) {
   // 浏览器检测
   let browserName = 'Unknown'
   let browserVersion = 'Unknown'
@@ -95,11 +95,11 @@ function parseUserAgent(userAgent: string) {
   }
 }
 
-function generateFingerprint(userAgent: string, ipAddress: string): string {
+export function generateFingerprint(userAgent: string, ipAddress: string): string {
   // 简单的设备指纹生成
   const canvas = 'canvas-fingerprint'
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-  const language = navigator.language || 'en'
+  const timezone = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC'
+  const language = typeof navigator !== 'undefined' ? navigator.language : 'en'
 
   const fingerprintData = `${userAgent}-${ipAddress}-${canvas}-${timezone}-${language}`
 
