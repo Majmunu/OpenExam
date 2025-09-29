@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import { logClientLogin } from "@/lib/client-login-logger"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -37,6 +38,15 @@ export default function LoginPage() {
         // 获取用户信息并重定向到相应页面
         const session = await getSession()
         toast.success("登录成功")
+
+        // 记录客户端登录日志
+        if (session?.user) {
+          await logClientLogin(
+            session.user.id,
+            session.user.email || '',
+            session.user.name || ''
+          )
+        }
 
         if (session?.user.role === "ADMIN") {
           router.push("/admin")

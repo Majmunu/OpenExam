@@ -108,39 +108,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger }) {
       if (user) {
         token.role = user.role
-        // 在JWT回调中记录登录
-        if (trigger === 'signIn') {
-          try {
-            // 创建基本的设备信息，使用默认值
-            const userAgent = 'web-browser'
-            const ipAddress = '127.0.0.1'
-
-            // 简单的设备信息解析
-            const browserInfo = parseUserAgent(userAgent)
-
-            await prisma.loginLog.create({
-              data: {
-                userId: user.id,
-                userEmail: user.email || 'unknown@example.com',
-                userName: user.name || 'Unknown User',
-                ipAddress: ipAddress,
-                userAgent: userAgent,
-                browserName: browserInfo.browserName,
-                browserVersion: browserInfo.browserVersion,
-                osName: browserInfo.osName,
-                osVersion: browserInfo.osVersion,
-                deviceType: browserInfo.deviceType,
-                fingerprint: generateFingerprint(userAgent, ipAddress),
-                loginType: 'web',
-                isActive: true,
-                isSuspicious: false,
-                riskLevel: 'low'
-              }
-            })
-          } catch (error) {
-            console.error('Error logging login:', error)
-          }
-        }
+        // 登录日志记录移到客户端处理，避免在JWT回调中执行数据库操作
       }
       return token
     },
