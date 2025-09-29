@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Clock, Save, CheckCircle } from "lucide-react"
+import { toast } from "sonner"
 import ExamForm from "@/components/ExamForm"
 
 interface Exam {
@@ -362,10 +363,10 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
       )
 
       await Promise.all(promises)
-      alert("答案已保存")
+      toast.success("答案已保存")
     } catch (error) {
       console.error("Error saving answers:", error)
-      alert("保存失败")
+      toast.error("保存失败")
     } finally {
       setSubmitting(false)
     }
@@ -378,11 +379,11 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
       await handleSave()
 
       // 提交考试
-      alert("考试已提交")
+      toast.success("考试已提交")
       router.push("/user")
     } catch (error) {
       console.error("Error submitting exam:", error)
-      alert("提交失败")
+      toast.error("提交失败")
     } finally {
       setSubmitting(false)
     }

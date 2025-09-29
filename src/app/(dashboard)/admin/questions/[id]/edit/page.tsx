@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Save } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
 
 interface Exam {
@@ -40,6 +41,8 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const fromExam = searchParams.get("fromExam")
 
   useEffect(() => {
     fetchExams()
@@ -97,14 +100,20 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
       })
 
       if (response.ok) {
-        router.push("/admin/questions")
+        toast.success("题目更新成功")
+        // 根据来源决定跳转位置
+        if (fromExam) {
+          router.push(`/admin/exams/${fromExam}`)
+        } else {
+          router.push("/admin/questions")
+        }
       } else {
         const error = await response.json()
-        alert(error.error || "更新失败")
+        toast.error(error.error || "更新失败")
       }
     } catch (error) {
       console.error("Error updating question:", error)
-      alert("更新失败")
+      toast.error("更新失败")
     } finally {
       setLoading(false)
     }

@@ -44,9 +44,34 @@ export async function POST(
       return NextResponse.json({ error: "Some questions not found" }, { status: 404 })
     }
 
+    // 检查题目是否已经存在于当前考试中
+    const existingQuestions = await prisma.question.findMany({
+      where: {
+        examId: id,
+        title: {
+          in: questions.map(q => q.title)
+        }
+      }
+    })
+
+    const existingTitles = new Set(existingQuestions.map(q => q.title))
+    const newQuestions = questions.filter(q => !existingTitles.has(q.title))
+
+    if (newQuestions.length === 0) {
+      return NextResponse.json({
+        message: "所有题目都已存在于当前考试中",
+        skipped: questions.length
+      })
+    }
+
+    if (newQuestions.length < questions.length) {
+      const skippedCount = questions.length - newQuestions.length
+      console.log(`跳过 ${skippedCount} 个已存在的题目`)
+    }
+
     // 创建新的题目副本并关联到当前考试
-    const newQuestions = await Promise.all(
-      questions.map(question =>
+    const createdQuestions = await Promise.all(
+      newQuestions.map(question =>
         prisma.question.create({
           data: {
             type: question.type,
@@ -62,7 +87,9 @@ export async function POST(
 
     return NextResponse.json({
       message: "Questions added successfully",
-      questions: newQuestions
+      questions: createdQuestions,
+      added: createdQuestions.length,
+      skipped: questions.length - createdQuestions.length
     })
   } catch (error) {
     console.error("Error adding questions to exam:", error)

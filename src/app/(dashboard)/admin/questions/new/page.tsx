@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
 
 interface Exam {
@@ -21,7 +22,7 @@ export default function NewQuestionPage() {
     examId: "",
     type: "",
     title: "",
-    options: "",
+    options: [] as string[],
     answer: "",
     points: 1,
   })
@@ -64,11 +65,12 @@ export default function NewQuestionPage() {
         },
         body: JSON.stringify({
           ...formData,
-          options: formData.options ? formData.options.split('\n').filter(opt => opt.trim()) : null,
+          options: formData.options.length > 0 ? formData.options : null,
         }),
       })
 
       if (response.ok) {
+        toast.success("题目创建成功")
         // 如果是从试卷页面来的，创建成功后返回到试卷页面
         if (examId) {
           router.push(`/admin/exams/${examId}`)
@@ -77,11 +79,11 @@ export default function NewQuestionPage() {
         }
       } else {
         const error = await response.json()
-        alert(error.error || "创建失败")
+        toast.error(error.error || "创建失败")
       }
     } catch (error) {
       console.error("Error creating question:", error)
-      alert("创建失败")
+      toast.error("创建失败")
     } finally {
       setLoading(false)
     }
@@ -96,25 +98,123 @@ export default function NewQuestionPage() {
   }
 
   const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value }
+
+      // 当选择题目类型时，初始化选项数组并清空答案
+      if (name === 'type') {
+        newData.answer = '' // 清空答案
+        if ((value === 'SINGLE_CHOICE' || value === 'MULTIPLE_CHOICE')) {
+          if (prev.options.length === 0) {
+            newData.options = ['', '', '', '']
+          }
+        } else {
+          newData.options = [] // 非选择题清空选项
+        }
+      }
+
+      return newData
+    })
+  }
+
+  const addOption = () => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      options: [...prev.options, '']
     }))
+  }
+
+  const updateOption = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      options: prev.options.map((opt, i) => i === index ? value : opt)
+    }))
+  }
+
+  const removeOption = (index: number) => {
+    if (formData.options.length > 2) {
+      setFormData(prev => ({
+        ...prev,
+        options: prev.options.filter((_, i) => i !== index)
+      }))
+    }
   }
 
   const renderOptionsField = () => {
     if (formData.type === "SINGLE_CHOICE" || formData.type === "MULTIPLE_CHOICE") {
       return (
-        <div className="space-y-2">
-          <Label htmlFor="options">选项（每行一个）</Label>
-          <Textarea
-            id="options"
-            name="options"
-            value={formData.options}
-            onChange={handleChange}
-            placeholder="选项1&#10;选项2&#10;选项3&#10;选项4"
-            rows={4}
-          />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label>选项</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addOption}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              添加选项
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {formData.options.map((option, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                  {index === 0 && (
+                    <span className="text-sm text-gray-600 w-16">正确答案:</span>
+                  )}
+                  {index > 0 && <div className="w-16"></div>}
+                  {formData.type === 'SINGLE_CHOICE' ? (
+                    <input
+                      type="radio"
+                      name="answer"
+                      value={index}
+                      checked={formData.answer === index.toString()}
+                      onChange={(e) => {
+                        console.log('单选题答案改变:', e.target.value)
+                        setFormData(prev => ({ ...prev, answer: e.target.value }))
+                      }}
+                      className="h-4 w-4 text-blue-600"
+                    />
+                  ) : (
+                    <input
+                      type="checkbox"
+                      checked={formData.answer ? formData.answer.split(',').includes(index.toString()) : false}
+                      onChange={(e) => {
+                        const currentAnswers = formData.answer ? formData.answer.split(',').filter(a => a.trim()) : []
+                        let newAnswers
+                        if (e.target.checked) {
+                          newAnswers = [...currentAnswers, index.toString()]
+                        } else {
+                          newAnswers = currentAnswers.filter(a => a !== index.toString())
+                        }
+                        console.log('多选题答案改变:', newAnswers.join(','))
+                        setFormData(prev => ({ ...prev, answer: newAnswers.join(',') }))
+                      }}
+                      className="h-4 w-4 text-blue-600"
+                    />
+                  )}
+                </div>
+                <Input
+                  value={option}
+                  onChange={(e) => updateOption(index, e.target.value)}
+                  placeholder={`选项 ${index + 1}`}
+                  className="flex-1"
+                />
+                {formData.options.length > 2 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeOption(index)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )
     }
@@ -214,19 +314,9 @@ export default function NewQuestionPage() {
 
             {renderOptionsField()}
 
-            <div className="space-y-2">
-              <Label htmlFor="answer">正确答案 *</Label>
-              {formData.type === "MULTIPLE_CHOICE" ? (
-                <Textarea
-                  id="answer"
-                  name="answer"
-                  value={formData.answer}
-                  onChange={handleChange}
-                  required
-                  placeholder="多个答案用逗号分隔，如：选项1,选项2"
-                  rows={2}
-                />
-              ) : (
+            {(formData.type === "SHORT_ANSWER" || formData.type === "FILL_BLANK") && (
+              <div className="space-y-2">
+                <Label htmlFor="answer">正确答案 *</Label>
                 <Input
                   id="answer"
                   name="answer"
@@ -235,8 +325,8 @@ export default function NewQuestionPage() {
                   required
                   placeholder="请输入正确答案..."
                 />
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="flex justify-end space-x-4">
               <Button type="button" variant="outline" asChild>

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowLeft, Save } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
 
 export default function NewExamPage() {
@@ -38,19 +39,21 @@ export default function NewExamPage() {
         body: JSON.stringify({
           ...formData,
           duration: formData.duration ? parseInt(formData.duration) : null,
+          passingScore: parseInt(formData.passingScore.toString()),
         }),
       })
 
       if (response.ok) {
         const exam = await response.json()
+        toast.success("考试创建成功")
         router.push(`/admin/exams/${exam.id}`)
       } else {
         const error = await response.json()
-        alert(error.error || "创建失败")
+        toast.error(error.error || "创建失败")
       }
     } catch (error) {
       console.error("Error creating exam:", error)
-      alert("创建失败")
+      toast.error("创建失败")
     } finally {
       setLoading(false)
     }

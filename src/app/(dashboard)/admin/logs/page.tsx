@@ -18,7 +18,9 @@ import {
   Keyboard,
   Monitor,
   Smartphone,
-  Tablet
+  Tablet,
+  Trash2,
+  Settings
 } from "lucide-react"
 import { format } from "date-fns"
 
@@ -107,6 +109,9 @@ export default function LogsPage() {
   const [exams, setExams] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [cleanupStats, setCleanupStats] = useState<any>(null)
+  const [cleanupLoading, setCleanupLoading] = useState(false)
+  const [showCleanupDialog, setShowCleanupDialog] = useState(false)
 
   useEffect(() => {
     fetchLogs()
@@ -209,6 +214,52 @@ export default function LogsPage() {
     }
   }
 
+  const fetchCleanupStats = async (days: number = 30) => {
+    try {
+      const response = await fetch(`/api/logs/cleanup?days=${days}`)
+      if (response.ok) {
+        const stats = await response.json()
+        setCleanupStats(stats)
+      }
+    } catch (error) {
+      console.error("Error fetching cleanup stats:", error)
+    }
+  }
+
+  const handleCleanup = async (days: number, dryRun: boolean = false) => {
+    setCleanupLoading(true)
+    try {
+      const response = await fetch('/api/logs/cleanup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ days, dryRun })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (dryRun) {
+          alert(result.message)
+        } else {
+          alert(result.message)
+          // 刷新数据
+          fetchLogs()
+          fetchStats()
+          fetchCleanupStats(days)
+        }
+      } else {
+        const error = await response.json()
+        alert(error.error || '清理失败')
+      }
+    } catch (error) {
+      console.error("Error cleaning up logs:", error)
+      alert('清理失败')
+    } finally {
+      setCleanupLoading(false)
+    }
+  }
+
   const getSuspiciousLevel = (log: AnswerLog) => {
     let level = 0
     let reasons: string[] = []
@@ -276,9 +327,23 @@ export default function LogsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">答题日志管理</h1>
-        <p className="text-gray-600">查看和分析用户答题行为数据</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">答题日志管理</h1>
+          <p className="text-gray-600">查看和分析用户答题行为数据</p>
+        </div>
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowCleanupDialog(true)
+              fetchCleanupStats(30)
+            }}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            日志清理
+          </Button>
+        </div>
       </div>
 
       {/* 统计概览 */}
@@ -569,6 +634,72 @@ export default function LogsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* 清理对话框 */}
+      {showCleanupDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">日志清理设置</h3>
+
+            {cleanupStats && (
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium mb-2">当前状态</h4>
+                <div className="space-y-1 text-sm">
+                  <div>总日志数: {cleanupStats.totalLogs}</div>
+                  <div>过期日志: {cleanupStats.expiredLogs}</div>
+                  <div>过期比例: {cleanupStats.stats.expiredPercentage}%</div>
+                  {cleanupStats.oldestLogDate && (
+                    <div>最早日志: {format(new Date(cleanupStats.oldestLogDate), 'yyyy-MM-dd')}</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">清理天数</label>
+                <Select defaultValue="30" onValueChange={(value) => fetchCleanupStats(parseInt(value))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7">7天</SelectItem>
+                    <SelectItem value="30">30天</SelectItem>
+                    <SelectItem value="90">90天</SelectItem>
+                    <SelectItem value="180">180天</SelectItem>
+                    <SelectItem value="365">1年</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCleanupDialog(false)}
+                  className="flex-1"
+                >
+                  取消
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleCleanup(30, true)}
+                  disabled={cleanupLoading}
+                  className="flex-1"
+                >
+                  预览清理
+                </Button>
+                <Button
+                  onClick={() => handleCleanup(30, false)}
+                  disabled={cleanupLoading || !cleanupStats?.stats.canCleanup}
+                  className="flex-1"
+                >
+                  {cleanupLoading ? '清理中...' : '确认清理'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -31,9 +32,12 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError("Invalid credentials")
+        toast.error("登录失败，请检查用户名和密码")
       } else {
         // 获取用户信息并重定向到相应页面
         const session = await getSession()
+        toast.success("登录成功")
+
         if (session?.user.role === "ADMIN") {
           router.push("/admin")
         } else {
@@ -42,6 +46,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       setError("An error occurred during login")
+      toast.error("登录过程中发生错误")
     } finally {
       setIsLoading(false)
     }

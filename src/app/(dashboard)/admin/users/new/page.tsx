@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Save } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
 
 export default function NewUserPage() {
@@ -34,14 +35,15 @@ export default function NewUserPage() {
       })
 
       if (response.ok) {
+        toast.success("用户创建成功")
         router.push("/admin/users")
       } else {
         const error = await response.json()
-        alert(error.error || "创建失败")
+        toast.error(error.error || "创建失败")
       }
     } catch (error) {
       console.error("Error creating user:", error)
-      alert("创建失败")
+      toast.error("创建失败")
     } finally {
       setLoading(false)
     }

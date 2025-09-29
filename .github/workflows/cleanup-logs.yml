@@ -1,0 +1,38 @@
+name: 自动清理日志
+
+on:
+  schedule:
+    # 每天凌晨2点执行
+    - cron: '0 2 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  cleanup-logs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 清理过期日志
+        run: |
+          # 获取部署URL（根据你的部署方式调整）
+          if [ -n "${{ secrets.VERCEL_URL }}" ]; then
+            DEPLOY_URL="https://${{ secrets.VERCEL_URL }}"
+          elif [ -n "${{ secrets.RAILWAY_URL }}" ]; then
+            DEPLOY_URL="${{ secrets.RAILWAY_URL }}"
+          else
+            echo "未找到部署URL，请设置相应的环境变量"
+            exit 1
+          fi
+          
+          # 调用清理API
+          curl -X GET "$DEPLOY_URL/api/cron/cleanup-logs" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET || 'default-secret' }}" \
+            -H "Content-Type: application/json"
+            
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          
+      - name: 发送通知（可选）
+        if: always()
+        run: |
+          echo "日志清理任务完成"
+          # 这里可以添加通知逻辑，比如发送邮件或Slack消息

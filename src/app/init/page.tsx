@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { toast } from 'sonner'
 
 export default function InitPage() {
   const [loading, setLoading] = useState(false)
@@ -21,12 +22,18 @@ export default function InitPage() {
 
       const data = await response.json()
       setResult(data)
+      if (data.success) {
+        toast.success("数据库初始化成功")
+      } else {
+        toast.error("数据库初始化失败")
+      }
     } catch (error) {
       setResult({
         success: false,
         message: '初始化失败',
         error: error instanceof Error ? error.message : '未知错误'
       })
+      toast.error("数据库初始化失败")
     } finally {
       setLoading(false)
     }

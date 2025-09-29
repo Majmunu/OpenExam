@@ -6,9 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowLeft, Edit, Trash2, Plus, Eye } from "lucide-react"
+import { ArrowLeft, Edit, Trash2, Plus, Eye, X } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import SortableQuestions from "@/components/SortableQuestions"
+import BatchAddQuestions from "@/components/BatchAddQuestions"
 
 interface Exam {
   id: string
@@ -29,6 +32,8 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
   const resolvedParams = use(params)
   const [exam, setExam] = useState<Exam | null>(null)
   const [loading, setLoading] = useState(true)
+  const [questions, setQuestions] = useState<Exam['questions']>([])
+  const [showBatchAdd, setShowBatchAdd] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -41,6 +46,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
       if (response.ok) {
         const data = await response.json()
         setExam(data)
+        setQuestions(data.questions || [])
       } else {
         router.push("/admin/exams")
       }
@@ -59,13 +65,14 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
       })
 
       if (response.ok) {
+        toast.success("考试删除成功")
         router.push("/admin/exams")
       } else {
-        alert("删除失败")
+        toast.error("删除失败")
       }
     } catch (error) {
       console.error("Error deleting exam:", error)
-      alert("删除失败")
+      toast.error("删除失败")
     }
   }
 
@@ -91,6 +98,67 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
       FILL_BLANK: "填空题",
     }
     return typeMap[type] || type
+  }
+
+  const handleDeleteQuestion = async (questionId: string) => {
+    try {
+      const response = await fetch(`/api/questions/${questionId}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        toast.success("题目删除成功")
+        fetchExam() // 重新获取考试数据
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "删除失败")
+      }
+    } catch (error) {
+      console.error("Error deleting question:", error)
+      toast.error("删除失败")
+    }
+  }
+
+  const handleReorderQuestions = async (newOrder: Exam['questions']) => {
+    try {
+      const response = await fetch(`/api/exams/${resolvedParams.id}/questions/reorder`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          questionIds: newOrder.map(q => q.id)
+        }),
+      })
+
+      if (response.ok) {
+        setQuestions(newOrder)
+        toast.success("题目顺序已更新")
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "更新顺序失败")
+      }
+    } catch (error) {
+      console.error("Error reordering questions:", error)
+      toast.error("更新顺序失败")
+    }
+  }
+
+  const handleEditQuestion = (questionId: string) => {
+    router.push(`/admin/questions/${questionId}/edit?fromExam=${resolvedParams.id}`)
+  }
+
+  const handleViewQuestion = (questionId: string) => {
+    router.push(`/admin/questions/${questionId}`)
+  }
+
+  const handleBatchAddSuccess = () => {
+    setShowBatchAdd(false)
+    fetchExam() // 重新获取考试数据
+  }
+
+  const handleBatchAddCancel = () => {
+    setShowBatchAdd(false)
   }
 
   if (loading) {
@@ -211,6 +279,10 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
                       选择已有题目
                     </Link>
                   </Button>
+                  <Button variant="outline" onClick={() => setShowBatchAdd(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    批量添加
+                  </Button>
                   <Button asChild>
                     <Link href={`/admin/questions/new?examId=${exam.id}`}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -229,47 +301,13 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
                   </Button>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>题目</TableHead>
-                      <TableHead>类型</TableHead>
-                      <TableHead>分值</TableHead>
-                      <TableHead>操作</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {exam.questions.map((question, index) => (
-                      <TableRow key={question.id}>
-                        <TableCell className="max-w-md">
-                          <div className="truncate" title={question.title}>
-                            {index + 1}. {question.title}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {getQuestionTypeLabel(question.type)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{question.points}</TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button variant="outline" size="sm" asChild>
-                              <Link href={`/admin/questions/${question.id}`}>
-                                <Eye className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                            <Button variant="outline" size="sm" asChild>
-                              <Link href={`/admin/questions/${question.id}/edit`}>
-                                <Edit className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <SortableQuestions
+                  questions={questions}
+                  onReorder={handleReorderQuestions}
+                  onEdit={handleEditQuestion}
+                  onDelete={handleDeleteQuestion}
+                  onView={handleViewQuestion}
+                />
               )}
             </CardContent>
           </Card>
@@ -301,6 +339,35 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
         </div>
       </div>
+
+      {/* 批量添加题目模态框 */}
+      {showBatchAdd && (
+        <div className="fixed inset-0 z-50 bg-white overflow-hidden">
+          <div className="h-full flex flex-col">
+            {/* 模态框头部 */}
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50 flex-shrink-0">
+              <h2 className="text-xl font-semibold">批量添加题目</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBatchAddCancel}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* 模态框内容 */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <BatchAddQuestions
+                examId={exam.id}
+                onSuccess={handleBatchAddSuccess}
+                onCancel={handleBatchAddCancel}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Edit, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 
 interface Question {
   id: string
@@ -56,13 +57,14 @@ export default function QuestionDetailPage({ params }: { params: Promise<{ id: s
       })
 
       if (response.ok) {
+        toast.success("题目删除成功")
         router.push("/admin/questions")
       } else {
-        alert("删除失败")
+        toast.error("删除失败")
       }
     } catch (error) {
       console.error("Error deleting question:", error)
-      alert("删除失败")
+      toast.error("删除失败")
     }
   }
 
@@ -200,7 +202,28 @@ export default function QuestionDetailPage({ params }: { params: Promise<{ id: s
             </CardHeader>
             <CardContent>
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-medium">{question.answer}</p>
+                {question.type === 'SINGLE_CHOICE' && (
+                  <div>
+                    <p className="text-green-800 font-medium">
+                      选项 {String.fromCharCode(65 + parseInt(question.answer))}: {options[parseInt(question.answer)]}
+                    </p>
+                  </div>
+                )}
+                {question.type === 'MULTIPLE_CHOICE' && (
+                  <div>
+                    <p className="text-green-800 font-medium mb-2">正确答案：</p>
+                    <div className="space-y-1">
+                      {question.answer.split(',').map((answerIndex: string) => (
+                        <div key={answerIndex} className="text-green-800">
+                          选项 {String.fromCharCode(65 + parseInt(answerIndex))}: {options[parseInt(answerIndex)]}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {(question.type === 'SHORT_ANSWER' || question.type === 'FILL_BLANK') && (
+                  <p className="text-green-800 font-medium">{question.answer}</p>
+                )}
               </div>
             </CardContent>
           </Card>

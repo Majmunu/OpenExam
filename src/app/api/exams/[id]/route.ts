@@ -68,8 +68,8 @@ export async function PUT(
         description,
         startTime: startTime ? new Date(startTime) : undefined,
         endTime: endTime ? new Date(endTime) : undefined,
-        duration,
-        passingScore: passingScore !== undefined ? passingScore : undefined,
+        duration: duration ? parseInt(duration) : undefined,
+        passingScore: passingScore !== undefined ? parseInt(passingScore) : undefined,
         passingCriteria,
       },
       include: {

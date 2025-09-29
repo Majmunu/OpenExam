@@ -12,8 +12,11 @@ import {
   FileText,
   LogOut,
   Home,
-  Settings
+  Settings,
+  Shield
 } from "lucide-react"
+import { toast } from "sonner"
+import { logLogout } from "@/lib/login-logger"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
@@ -43,7 +46,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return null
   }
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    if (session?.user?.id) {
+      await logLogout(session.user.id)
+    }
+    toast.success("已退出登录")
     signOut({ callbackUrl: "/login" })
   }
 
@@ -123,6 +130,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 <FileText className="h-4 w-4" />
                 <span>日志管理</span>
+              </Link>
+
+              <Link
+                href="/admin/login-logs"
+                className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <Shield className="h-4 w-4" />
+                <span>登录日志</span>
               </Link>
             </nav>
           </div>

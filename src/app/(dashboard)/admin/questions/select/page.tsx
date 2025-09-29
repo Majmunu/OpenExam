@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Plus, Search, Filter } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
 
 interface Question {
@@ -42,13 +43,36 @@ export default function SelectQuestionsPage() {
       const response = await fetch("/api/questions")
       if (response.ok) {
         const data = await response.json()
-        setQuestions(data)
+        // 合并相同题目，但保留多个分配人信息
+        const mergedQuestions = mergeDuplicateQuestions(data)
+        setQuestions(mergedQuestions)
       }
     } catch (error) {
       console.error("Error fetching questions:", error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const mergeDuplicateQuestions = (questions: Question[]) => {
+    const questionMap = new Map<string, Question>()
+
+    questions.forEach(question => {
+      const key = question.title // 使用题目内容作为唯一标识
+
+      if (questionMap.has(key)) {
+        // 如果题目已存在，合并分配人信息
+        const existing = questionMap.get(key)!
+        if (!existing.exam.title.includes(question.exam.title)) {
+          existing.exam.title += `, ${question.exam.title}`
+        }
+      } else {
+        // 新题目，直接添加
+        questionMap.set(key, { ...question })
+      }
+    })
+
+    return Array.from(questionMap.values())
   }
 
   const handleQuestionSelect = (questionId: string) => {
@@ -61,7 +85,7 @@ export default function SelectQuestionsPage() {
 
   const handleAddSelected = async () => {
     if (selectedQuestions.length === 0) {
-      alert("请选择至少一个题目")
+      toast.error("请选择至少一个题目")
       return
     }
 
@@ -75,14 +99,20 @@ export default function SelectQuestionsPage() {
       })
 
       if (response.ok) {
+        const result = await response.json()
+        if (result.skipped > 0) {
+          toast.success(`成功添加 ${result.added} 个题目，跳过 ${result.skipped} 个重复题目`)
+        } else {
+          toast.success(`成功添加 ${result.added} 个题目`)
+        }
         router.push(`/admin/exams/${examId}`)
       } else {
         const error = await response.json()
-        alert(error.error || "添加失败")
+        toast.error(error.error || "添加失败")
       }
     } catch (error) {
       console.error("Error adding questions:", error)
-      alert("添加失败")
+      toast.error("添加失败")
     }
   }
 

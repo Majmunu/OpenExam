@@ -107,7 +107,8 @@ export async function GET(request: NextRequest) {
             title: true,
             type: true,
             points: true,
-            answer: true
+            answer: true,
+            options: true
           }
         }
       }
@@ -125,16 +126,33 @@ export async function GET(request: NextRequest) {
       correctCount,
       totalQuestions,
       scorePercentage: maxScore > 0 ? Math.round((totalScore / maxScore) * 100 * 100) / 100 : 0,
-      answers: answers.map(answer => ({
-        questionId: answer.questionId,
-        questionTitle: answer.question.title,
-        questionType: answer.question.type,
-        userAnswer: answer.response,
-        correctAnswer: answer.question.answer,
-        score: answer.score,
-        maxScore: answer.question.points,
-        isCorrect: answer.score === answer.question.points
-      }))
+      answers: answers.map(answer => {
+        // 处理正确答案显示
+        let correctAnswerDisplay = answer.question.answer
+
+        if (answer.question.type === 'SINGLE_CHOICE' && answer.question.options) {
+          const options = JSON.parse(answer.question.options)
+          const answerIndex = parseInt(answer.question.answer)
+          correctAnswerDisplay = `选项 ${String.fromCharCode(65 + answerIndex)}: ${options[answerIndex]}`
+        } else if (answer.question.type === 'MULTIPLE_CHOICE' && answer.question.options) {
+          const options = JSON.parse(answer.question.options)
+          const answerIndices = answer.question.answer.split(',')
+          correctAnswerDisplay = answerIndices.map((index: string) =>
+            `选项 ${String.fromCharCode(65 + parseInt(index))}: ${options[parseInt(index)]}`
+          ).join(', ')
+        }
+
+        return {
+          questionId: answer.questionId,
+          questionTitle: answer.question.title,
+          questionType: answer.question.type,
+          userAnswer: answer.response,
+          correctAnswer: correctAnswerDisplay,
+          score: answer.score,
+          maxScore: answer.question.points,
+          isCorrect: answer.score === answer.question.points
+        }
+      })
     })
   } catch (error) {
     console.error("Error fetching scoring results:", error)

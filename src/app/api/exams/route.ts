@@ -116,9 +116,9 @@ export async function POST(request: NextRequest) {
         description,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        duration,
+        duration: duration ? parseInt(duration) : undefined,
         isPublic: isPublic || false,
-        passingScore: passingScore || 60,
+        passingScore: passingScore ? parseInt(passingScore) : 60,
         passingCriteria,
       },
       include: {

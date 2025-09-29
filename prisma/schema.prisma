@@ -23,6 +23,7 @@ model User {
   answers      Answer[]
   permissions  ExamPermission[]
   answerLogs   AnswerLog[]
+  loginLogs    LoginLog[]
   
   @@map("users")
 }
@@ -137,6 +138,46 @@ model AnswerLog {
   exam          Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   
   @@map("answer_logs")
+}
+
+model LoginLog {
+  id            String   @id @default(cuid())
+  userId        String
+  userEmail     String   // 用户邮箱，用于快速查询
+  userName      String   // 用户名称
+  
+  // 登录信息
+  loginTime     DateTime @default(now()) // 登录时间
+  logoutTime    DateTime? // 退出时间
+  sessionDuration Int?    // 会话时长（分钟）
+  
+  // 网络信息
+  ipAddress     String?  // IP地址
+  userAgent     String?  // 浏览器信息
+  browserName   String?  // 浏览器名称
+  browserVersion String? // 浏览器版本
+  osName        String?  // 操作系统名称
+  osVersion     String?  // 操作系统版本
+  deviceType    String?  // 设备类型 (desktop/mobile/tablet)
+  fingerprint   String?  // 设备指纹
+  
+  // 地理位置信息（可选）
+  country       String?  // 国家
+  region        String?  // 地区/省份
+  city          String?  // 城市
+  
+  // 登录状态
+  isActive      Boolean  @default(true) // 是否活跃会话
+  loginType     String   @default("web") // 登录类型 (web/mobile/api)
+  
+  // 安全信息
+  isSuspicious  Boolean  @default(false) // 是否可疑登录
+  riskLevel     String   @default("low") // 风险等级 (low/medium/high)
+  
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("login_logs")
 }
 
 enum UserRole {

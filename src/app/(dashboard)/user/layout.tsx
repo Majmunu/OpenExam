@@ -13,6 +13,8 @@ import {
   Clock,
   FileText
 } from "lucide-react"
+import { toast } from "sonner"
+import { logLogout } from "@/lib/login-logger"
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
@@ -42,7 +44,11 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     return null
   }
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    if (session?.user?.id) {
+      await logLogout(session.user.id)
+    }
+    toast.success("已退出登录")
     signOut({ callbackUrl: "/login" })
   }
 

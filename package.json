@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.16.2",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -38,6 +41,7 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.63.0",
     "recharts": "^3.2.1",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.1.11"
   },

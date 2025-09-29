@@ -4,6 +4,61 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "./prisma"
 
+// 简单的User Agent解析函数
+function parseUserAgent(userAgent: string) {
+  let browserName = 'Unknown'
+  let browserVersion = 'Unknown'
+  let osName = 'Unknown'
+  let osVersion = 'Unknown'
+  let deviceType = 'desktop'
+
+  if (userAgent.includes('Chrome')) {
+    browserName = 'Chrome'
+    const match = userAgent.match(/Chrome\/(\d+\.\d+)/)
+    browserVersion = match ? match[1] : 'Unknown'
+  } else if (userAgent.includes('Firefox')) {
+    browserName = 'Firefox'
+    const match = userAgent.match(/Firefox\/(\d+\.\d+)/)
+    browserVersion = match ? match[1] : 'Unknown'
+  } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+    browserName = 'Safari'
+    const match = userAgent.match(/Version\/(\d+\.\d+)/)
+    browserVersion = match ? match[1] : 'Unknown'
+  }
+
+  if (userAgent.includes('Windows')) {
+    osName = 'Windows'
+    if (userAgent.includes('Windows NT 10.0')) osVersion = '10'
+    else if (userAgent.includes('Windows NT 6.3')) osVersion = '8.1'
+  } else if (userAgent.includes('Mac OS X')) {
+    osName = 'macOS'
+    const match = userAgent.match(/Mac OS X (\d+[._]\d+)/)
+    osVersion = match ? match[1].replace('_', '.') : 'Unknown'
+  } else if (userAgent.includes('Linux')) {
+    osName = 'Linux'
+  }
+
+  if (userAgent.includes('Mobile')) {
+    deviceType = 'mobile'
+  } else if (userAgent.includes('Tablet') || userAgent.includes('iPad')) {
+    deviceType = 'tablet'
+  }
+
+  return { browserName, browserVersion, osName, osVersion, deviceType }
+}
+
+// 简单的指纹生成函数
+function generateFingerprint(userAgent: string, ipAddress: string): string {
+  const fingerprintData = `${userAgent}-${ipAddress}`
+  let hash = 0
+  for (let i = 0; i < fingerprintData.length; i++) {
+    const char = fingerprintData.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return Math.abs(hash).toString(36)
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
@@ -50,9 +105,49 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt"
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, request }) {
       if (user) {
         token.role = user.role
+        // 在JWT回调中记录登录
+        if (trigger === 'signIn') {
+          try {
+            // 创建基本的设备信息，避免复杂的request解析
+            const userAgent = typeof request === 'object' && request && 'headers' in request
+              ? (request as any).headers?.['user-agent'] || 'unknown'
+              : 'unknown'
+
+            const ipAddress = typeof request === 'object' && request && 'headers' in request
+              ? (request as any).headers?.['x-forwarded-for'] ||
+              (request as any).headers?.['x-real-ip'] ||
+              'unknown'
+              : 'unknown'
+
+            // 简单的设备信息解析
+            const browserInfo = parseUserAgent(userAgent)
+
+            await prisma.loginLog.create({
+              data: {
+                userId: user.id,
+                userEmail: user.email,
+                userName: user.name,
+                ipAddress: ipAddress,
+                userAgent: userAgent,
+                browserName: browserInfo.browserName,
+                browserVersion: browserInfo.browserVersion,
+                osName: browserInfo.osName,
+                osVersion: browserInfo.osVersion,
+                deviceType: browserInfo.deviceType,
+                fingerprint: generateFingerprint(userAgent, ipAddress),
+                loginType: 'web',
+                isActive: true,
+                isSuspicious: false,
+                riskLevel: 'low'
+              }
+            })
+          } catch (error) {
+            console.error('Error logging login:', error)
+          }
+        }
       }
       return token
     },

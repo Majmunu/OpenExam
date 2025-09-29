@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Save } from "lucide-react"
+import { toast } from "sonner"
 import Link from "next/link"
 
 interface Exam {
@@ -78,18 +79,20 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
         body: JSON.stringify({
           ...formData,
           duration: formData.duration ? parseInt(formData.duration) : null,
+          passingScore: parseInt(formData.passingScore.toString()),
         }),
       })
 
       if (response.ok) {
+        toast.success("考试更新成功")
         router.push(`/admin/exams/${resolvedParams.id}`)
       } else {
         const error = await response.json()
-        alert(error.error || "更新失败")
+        toast.error(error.error || "更新失败")
       }
     } catch (error) {
       console.error("Error updating exam:", error)
-      alert("更新失败")
+      toast.error("更新失败")
     } finally {
       setLoading(false)
     }
