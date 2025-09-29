@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { RefreshCw, Shield, AlertTriangle, CheckCircle, Monitor, Smartphone, Tablet } from "lucide-react"
+import { RefreshCw, Shield, AlertTriangle, CheckCircle, Monitor, Smartphone, Tablet, Clock } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import { logClientLogin } from "@/lib/client-login-logger"

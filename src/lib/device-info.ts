@@ -14,13 +14,13 @@ export function getDeviceInfoFromHeaders(headers: Headers): Partial<DeviceInfo> 
   const forwardedFor = headers.get('x-forwarded-for')
   const realIp = headers.get('x-real-ip')
   const cfConnectingIp = headers.get('cf-connecting-ip')
-  
+
   // 获取IP地址
   const ipAddress = cfConnectingIp || realIp || forwardedFor?.split(',')[0] || 'unknown'
-  
+
   // 解析User Agent
   const browserInfo = parseUserAgent(userAgent)
-  
+
   return {
     ipAddress,
     userAgent,
@@ -119,10 +119,10 @@ export function getClientDeviceInfo(): Partial<DeviceInfo> {
   if (typeof window === 'undefined') {
     return {}
   }
-  
+
   const userAgent = navigator.userAgent
   const browserInfo = parseUserAgent(userAgent)
-  
+
   return {
     userAgent,
     ...browserInfo,
@@ -137,13 +137,13 @@ export function getServerDeviceInfo(request: Request): Partial<DeviceInfo> {
   const forwardedFor = headers.get('x-forwarded-for')
   const realIp = headers.get('x-real-ip')
   const cfConnectingIp = headers.get('cf-connecting-ip')
-  
+
   // 获取IP地址
   const ipAddress = cfConnectingIp || realIp || forwardedFor?.split(',')[0] || 'unknown'
-  
+
   // 解析User Agent
   const browserInfo = parseUserAgent(userAgent)
-  
+
   return {
     ipAddress,
     userAgent,
