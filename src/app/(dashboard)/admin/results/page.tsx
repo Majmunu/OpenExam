@@ -136,9 +136,9 @@ export default function ResultsPage() {
           <CardContent>
             <div className="text-2xl font-bold">
               {results.length > 0
-                ? Math.round(results.reduce((sum, r) => sum + r.scorePercentage, 0) / results.length * 100) / 100
+                ? Math.round(results.reduce((sum, r) => sum + r.scorePercentage, 0) / results.length * 10) / 10
                 : 0
-              }%
+              }
             </div>
             <p className="text-xs text-muted-foreground">
               所有考试的平均分
