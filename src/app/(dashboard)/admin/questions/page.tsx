@@ -22,6 +22,19 @@ interface Question {
   }
 }
 
+interface MergedQuestion {
+  id: string
+  type: string
+  title: string
+  points: number
+  createdAt: string
+  exams: {
+    id: string
+    title: string
+  }[]
+  questionIds: string[]
+}
+
 interface Exam {
   id: string
   title: string
@@ -29,6 +42,7 @@ interface Exam {
 
 export default function QuestionsPage() {
   const [questions, setQuestions] = useState<Question[]>([])
+  const [mergedQuestions, setMergedQuestions] = useState<MergedQuestion[]>([])
   const [exams, setExams] = useState<Exam[]>([])
   const [selectedExamId, setSelectedExamId] = useState<string>("")
   const [loading, setLoading] = useState(true)
@@ -62,11 +76,44 @@ export default function QuestionsPage() {
       const response = await fetch(url)
       const data = await response.json()
       setQuestions(data)
+
+      // 合并相同题目
+      const merged = mergeDuplicateQuestions(data)
+      setMergedQuestions(merged)
     } catch (error) {
       console.error("Error fetching questions:", error)
     } finally {
       setLoading(false)
     }
+  }
+
+  // 合并相同题目的函数
+  const mergeDuplicateQuestions = (questions: Question[]): MergedQuestion[] => {
+    const questionMap = new Map<string, MergedQuestion>()
+
+    questions.forEach(question => {
+      const key = `${question.title}-${question.type}-${question.points}`
+
+      if (questionMap.has(key)) {
+        // 如果已存在相同题目，添加考试信息
+        const existing = questionMap.get(key)!
+        existing.exams.push(question.exam)
+        existing.questionIds.push(question.id)
+      } else {
+        // 创建新的合并题目
+        questionMap.set(key, {
+          id: question.id,
+          type: question.type,
+          title: question.title,
+          points: question.points,
+          createdAt: question.createdAt,
+          exams: [question.exam],
+          questionIds: [question.id]
+        })
+      }
+    })
+
+    return Array.from(questionMap.values())
   }
 
   const handleDelete = async (questionId: string) => {
@@ -76,7 +123,13 @@ export default function QuestionsPage() {
       })
 
       if (response.ok) {
-        setQuestions(questions.filter(question => question.id !== questionId))
+        // 从原始题目列表中删除
+        const updatedQuestions = questions.filter(question => question.id !== questionId)
+        setQuestions(updatedQuestions)
+
+        // 重新合并题目
+        const merged = mergeDuplicateQuestions(updatedQuestions)
+        setMergedQuestions(merged)
       } else {
         alert("删除失败")
       }
@@ -134,6 +187,11 @@ export default function QuestionsPage() {
           <CardTitle>题目列表</CardTitle>
           <CardDescription>
             系统中所有题目的列表
+            {mergedQuestions.length !== questions.length && (
+              <span className="ml-2 text-blue-600">
+                （已合并 {questions.length - mergedQuestions.length} 个重复题目）
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -153,7 +211,7 @@ export default function QuestionsPage() {
             </Select>
           </div>
 
-          {questions.length === 0 ? (
+          {mergedQuestions.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">暂无题目</p>
             </div>
@@ -165,13 +223,13 @@ export default function QuestionsPage() {
                     <TableHead className="min-w-[300px]">题目</TableHead>
                     <TableHead className="min-w-[100px]">类型</TableHead>
                     <TableHead className="min-w-[80px]">分值</TableHead>
-                    <TableHead className="min-w-[150px]">所属考试</TableHead>
+                    <TableHead className="min-w-[200px]">所属考试</TableHead>
                     <TableHead className="min-w-[150px]">创建时间</TableHead>
                     <TableHead className="min-w-[150px]">操作</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {questions.map((question) => (
+                  {mergedQuestions.map((question) => (
                     <TableRow key={question.id}>
                       <TableCell className="max-w-md">
                         <div className="truncate" title={question.title}>
@@ -184,7 +242,15 @@ export default function QuestionsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>{question.points}</TableCell>
-                      <TableCell>{question.exam.title}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {question.exams.map((exam, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {exam.title}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {new Date(question.createdAt).toLocaleString("zh-CN")}
                       </TableCell>
@@ -210,16 +276,19 @@ export default function QuestionsPage() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>确认删除</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  您确定要删除这道题目吗？此操作不可撤销。
+                                  此题目存在于 {question.exams.length} 个考试中，删除将影响所有相关考试。您确定要删除吗？此操作不可撤销。
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>取消</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleDelete(question.id)}
+                                  onClick={() => {
+                                    // 删除所有相关的题目ID
+                                    question.questionIds.forEach(id => handleDelete(id))
+                                  }}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  删除
+                                  删除所有
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>

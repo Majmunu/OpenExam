@@ -151,7 +151,9 @@ export default function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
+        </CardTransition>
 
+        <CardTransition>
           <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-700">已完成考试</CardTitle>
@@ -166,7 +168,9 @@ export default function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
+        </CardTransition>
 
+        <CardTransition>
           <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-700">总用户数</CardTitle>
@@ -181,6 +185,7 @@ export default function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
+        </CardTransition>
       </div>
 
       {/* 图表展示区域 */}
