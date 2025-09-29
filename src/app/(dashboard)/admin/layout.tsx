@@ -13,7 +13,9 @@ import {
   LogOut,
   Home,
   Settings,
-  Shield
+  Shield,
+  Bell,
+  TrendingUp
 } from "lucide-react"
 import { toast } from "sonner"
 import { logLogout } from "@/lib/login-logger"
@@ -157,6 +159,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 <Shield className="h-4 w-4" />
                 <span>登录日志</span>
+              </Link>
+              <Link
+                href="/admin/announcements"
+                className={getNavItemClass("/admin/announcements")}
+              >
+                <Bell className="h-4 w-4" />
+                <span>公告管理</span>
+              </Link>
+              <Link
+                href="/admin/analytics"
+                className={getNavItemClass("/admin/analytics")}
+              >
+                <TrendingUp className="h-4 w-4" />
+                <span>数据分析</span>
               </Link>
             </nav>
           </div>

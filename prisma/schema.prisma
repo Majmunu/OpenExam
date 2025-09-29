@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,60 +8,54 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
+  id           String           @id @default(cuid())
   name         String
-  email        String    @unique
+  email        String           @unique
   passwordHash String
-  role         UserRole  @default(USER)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  // Relations
+  role         UserRole         @default(USER)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  answerLogs   AnswerLog[]
   answers      Answer[]
   permissions  ExamPermission[]
-  answerLogs   AnswerLog[]
   loginLogs    LoginLog[]
-  
+
   @@map("users")
 }
 
 model Exam {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  startTime   DateTime
-  endTime     DateTime
-  duration    Int?     // 考试时长（分钟），可选字段
-  isPublic    Boolean   @default(false) // 是否公开给所有用户
-  passingScore Int      @default(60)    // 通过分数（百分比）
-  passingCriteria String?               // 通过标准描述
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations
-  questions   Question[]
-  permissions ExamPermission[]
-  answerLogs  AnswerLog[]
+  id              String           @id @default(cuid())
+  title           String
+  description     String?
+  startTime       DateTime
+  endTime         DateTime
+  duration        Int?
+  isPublic        Boolean          @default(false)
+  passingScore    Int              @default(60)
+  passingCriteria String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  answerLogs      AnswerLog[]
+  permissions     ExamPermission[]
+  questions       Question[]
 
   @@map("exams")
 }
 
 model Question {
-  id          String       @id @default(cuid())
-  examId      String
-  type        QuestionType
-  title       String
-  options     String?      // JSON string for multiple choice options
-  answer      String       // Correct answer
-  points      Int          @default(1)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  
-  // Relations
-  exam        Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
-  answers     Answer[]
-  answerLogs  AnswerLog[]
-  
+  id         String       @id @default(cuid())
+  examId     String
+  type       QuestionType
+  title      String
+  options    String?
+  answer     String
+  points     Int          @default(1)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  answerLogs AnswerLog[]
+  answers    Answer[]
+  exam       Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+
   @@map("questions")
 }
 
@@ -72,15 +63,13 @@ model Answer {
   id         String   @id @default(cuid())
   questionId String
   userId     String
-  response   String   // User's answer
-  score      Int?     // Score for this answer (null if not graded)
+  response   String
+  score      Int?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  
-  // Relations
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([questionId, userId])
   @@map("answers")
 }
@@ -90,8 +79,6 @@ model ExamPermission {
   examId    String
   userId    String
   createdAt DateTime @default(now())
-
-  // Relations
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -100,83 +87,61 @@ model ExamPermission {
 }
 
 model AnswerLog {
-  id            String   @id @default(cuid())
-  answerId      String   // 关联的答案ID
-  userId        String
-  questionId    String
-  examId        String
-  
-  // 用户行为数据
-  ipAddress     String?  // IP地址
-  userAgent     String?  // 浏览器信息
-  browserName   String?  // 浏览器名称
-  browserVersion String? // 浏览器版本
-  osName        String?  // 操作系统名称
-  osVersion     String?  // 操作系统版本
-  deviceType    String?  // 设备类型 (desktop/mobile/tablet)
-  fingerprint   String?  // 设备指纹
-  
-  // 答题行为数据
-  switchCount   Int      @default(0) // 切屏次数
-  duration      Int      @default(0) // 答题时长(秒)
-  focusTime     Int      @default(0) // 专注时间(秒)
-  blurTime      Int      @default(0) // 失焦时间(秒)
-  
-  // 答题过程数据
-  keystrokes    Int      @default(0) // 按键次数
-  mouseClicks   Int      @default(0) // 鼠标点击次数
-  scrollEvents  Int      @default(0) // 滚动事件次数
-  
-  // 时间戳
-  startTime     DateTime @default(now()) // 开始答题时间
-  endTime       DateTime @default(now()) // 结束答题时间
-  createdAt     DateTime @default(now())
-  
-  // Relations
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  question      Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  exam          Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  
+  id             String   @id @default(cuid())
+  answerId       String
+  userId         String
+  questionId     String
+  examId         String
+  ipAddress      String?
+  userAgent      String?
+  browserName    String?
+  browserVersion String?
+  osName         String?
+  osVersion      String?
+  deviceType     String?
+  fingerprint    String?
+  switchCount    Int      @default(0)
+  duration       Int      @default(0)
+  focusTime      Int      @default(0)
+  blurTime       Int      @default(0)
+  keystrokes     Int      @default(0)
+  mouseClicks    Int      @default(0)
+  scrollEvents   Int      @default(0)
+  startTime      DateTime @default(now())
+  endTime        DateTime @default(now())
+  createdAt      DateTime @default(now())
+  exam           Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("answer_logs")
 }
 
 model LoginLog {
-  id            String   @id @default(cuid())
-  userId        String
-  userEmail     String   // 用户邮箱，用于快速查询
-  userName      String   // 用户名称
-  
-  // 登录信息
-  loginTime     DateTime @default(now()) // 登录时间
-  logoutTime    DateTime? // 退出时间
-  sessionDuration Int?    // 会话时长（分钟）
-  
-  // 网络信息
-  ipAddress     String?  // IP地址
-  userAgent     String?  // 浏览器信息
-  browserName   String?  // 浏览器名称
-  browserVersion String? // 浏览器版本
-  osName        String?  // 操作系统名称
-  osVersion     String?  // 操作系统版本
-  deviceType    String?  // 设备类型 (desktop/mobile/tablet)
-  fingerprint   String?  // 设备指纹
-  
-  // 地理位置信息（可选）
-  country       String?  // 国家
-  region        String?  // 地区/省份
-  city          String?  // 城市
-  
-  // 登录状态
-  isActive      Boolean  @default(true) // 是否活跃会话
-  loginType     String   @default("web") // 登录类型 (web/mobile/api)
-  
-  // 安全信息
-  isSuspicious  Boolean  @default(false) // 是否可疑登录
-  riskLevel     String   @default("low") // 风险等级 (low/medium/high)
-  
-  // Relations
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id              String    @id @default(cuid())
+  userId          String
+  userEmail       String
+  userName        String
+  loginTime       DateTime  @default(now())
+  logoutTime      DateTime?
+  sessionDuration Int?
+  ipAddress       String?
+  userAgent       String?
+  browserName     String?
+  browserVersion  String?
+  osName          String?
+  osVersion       String?
+  deviceType      String?
+  fingerprint     String?
+  country         String?
+  region          String?
+  city            String?
+  isActive        Boolean   @default(true)
+  loginType       String    @default("web")
+  isSuspicious    Boolean   @default(false)
+  riskLevel       String    @default("low")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("login_logs")
 }
 
@@ -186,8 +151,8 @@ enum UserRole {
 }
 
 enum QuestionType {
-  SINGLE_CHOICE    // 单选题
-  MULTIPLE_CHOICE  // 多选题
-  SHORT_ANSWER     // 简答题
-  FILL_BLANK       // 填空题
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  SHORT_ANSWER
+  FILL_BLANK
 }
