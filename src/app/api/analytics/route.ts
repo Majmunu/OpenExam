@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       const totalScore = examResults.reduce((sum, exam) => sum + exam.totalScore, 0)
 
       // 计算正确题目数和总题目数
-      const correctAnswers = userAnswers.filter(a => a.score > 0).length
+      const correctAnswers = userAnswers.filter(a => a.score !== null && a.score > 0).length
       const totalAnswers = userAnswers.length
 
       const lastExamDate = userAnswers.length > 0 ?
