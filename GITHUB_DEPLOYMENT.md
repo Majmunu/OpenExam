@@ -1,6 +1,5 @@
 # GitHub 原生部署方案
 
-您说得对！GitHub 本身提供了多种原生部署选项，不需要依赖第三方平台。
 
 ## 🚀 GitHub 原生部署选项
 
@@ -128,4 +127,3 @@ NEXTAUTH_SECRET=your_secret_key
 - Codespaces 有使用时间限制，但适合开发
 - 所有方案都支持私有仓库
 
-选择最适合您需求的方案，开始享受 GitHub 原生部署的便利！
