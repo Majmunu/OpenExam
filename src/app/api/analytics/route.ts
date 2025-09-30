@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
         acc[hour] = { hour, submissionCount: 0, totalScore: 0 }
       }
       acc[hour].submissionCount++
-      acc[hour].totalScore += answer.score
+      acc[hour].totalScore += answer.score || 0
       return acc
     }, {} as Record<number, { hour: number; submissionCount: number; totalScore: number }>)
 
