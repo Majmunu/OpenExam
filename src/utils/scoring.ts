@@ -39,6 +39,7 @@ function arraysEqual(arr1: string[], arr2: string[]): boolean {
  * 单选题判分
  */
 function scoreSingleChoice(correctAnswer: string, userAnswer: string): number {
+  // 现在correctAnswer和userAnswer都是选项内容，直接比较
   const normalizedCorrect = normalizeString(correctAnswer)
   const normalizedUser = normalizeString(userAnswer)
   const isCorrect = normalizedCorrect === normalizedUser
@@ -60,8 +61,17 @@ function scoreSingleChoice(correctAnswer: string, userAnswer: string): number {
 function scoreMultipleChoice(correctAnswer: string, userAnswer: string): number {
   if (!userAnswer) return 0
 
-  const correctAnswers = correctAnswer.split(',').map(ans => normalizeString(ans))
-  const userAnswers = userAnswer.split(',').map(ans => normalizeString(ans))
+  // 现在correctAnswer和userAnswer都是选项内容，用逗号分隔
+  const correctAnswers = correctAnswer.split(',').map(ans => normalizeString(ans.trim()))
+  const userAnswers = userAnswer.split(',').map(ans => normalizeString(ans.trim()))
+
+  console.log('Multiple Choice Scoring:', {
+    correctAnswer,
+    userAnswer,
+    correctAnswers,
+    userAnswers,
+    isEqual: arraysEqual(correctAnswers, userAnswers)
+  })
 
   // 多选题：必须完全匹配才算正确
   return arraysEqual(correctAnswers, userAnswers) ? 1 : 0

@@ -130,16 +130,13 @@ export async function GET(request: NextRequest) {
         // 处理正确答案显示
         let correctAnswerDisplay = answer.question.answer
 
-        if (answer.question.type === 'SINGLE_CHOICE' && answer.question.options) {
-          const options = JSON.parse(answer.question.options)
-          const answerIndex = parseInt(answer.question.answer)
-          correctAnswerDisplay = `选项 ${String.fromCharCode(65 + answerIndex)}: ${options[answerIndex]}`
-        } else if (answer.question.type === 'MULTIPLE_CHOICE' && answer.question.options) {
-          const options = JSON.parse(answer.question.options)
-          const answerIndices = answer.question.answer.split(',')
-          correctAnswerDisplay = answerIndices.map((index: string) =>
-            `选项 ${String.fromCharCode(65 + parseInt(index))}: ${options[parseInt(index)]}`
-          ).join(', ')
+        // 现在answer.question.answer存储的是选项内容，直接显示即可
+        if (answer.question.type === 'SINGLE_CHOICE') {
+          // 单选题：直接显示选项内容
+          correctAnswerDisplay = answer.question.answer
+        } else if (answer.question.type === 'MULTIPLE_CHOICE') {
+          // 多选题：选项内容用逗号分隔，直接显示
+          correctAnswerDisplay = answer.question.answer
         }
 
         return {

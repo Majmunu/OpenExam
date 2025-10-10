@@ -31,21 +31,40 @@ export async function PUT(
       return NextResponse.json({ error: "Exam not found" }, { status: 404 })
     }
 
-    // 更新题目顺序（通过更新创建时间来实现排序）
-    // 这里我们使用一个简单的方案：为每个题目设置一个order字段
-    // 但由于当前schema没有order字段，我们使用批量更新来重新设置顺序
-
-    const updatePromises = questionIds.map((questionId, index) =>
-      prisma.question.update({
-        where: { id: questionId },
+    // 由于当前schema没有order字段，我们使用一个简单的方法：
+    // 通过删除和重新创建题目来保持顺序
+    // 这不是最优解，但可以工作
+    
+    // 获取所有题目数据
+    const questions = await prisma.question.findMany({
+      where: { examId: id },
+      orderBy: { createdAt: 'asc' }
+    })
+    
+    // 按照新的顺序重新排列题目
+    const reorderedQuestions = questionIds.map(id => 
+      questions.find(q => q.id === id)
+    ).filter(Boolean)
+    
+    // 删除所有题目
+    await prisma.question.deleteMany({
+      where: { examId: id }
+    })
+    
+    // 按照新顺序重新创建题目
+    for (let i = 0; i < reorderedQuestions.length; i++) {
+      const question = reorderedQuestions[i]
+      await prisma.question.create({
         data: {
-          // 使用一个临时的排序字段，这里我们用id的排序来实现
-          // 实际项目中建议在schema中添加order字段
+          examId: question.examId,
+          type: question.type,
+          title: question.title,
+          options: question.options,
+          answer: question.answer,
+          points: question.points,
         }
       })
-    )
-
-    await Promise.all(updatePromises)
+    }
 
     return NextResponse.json({
       message: "Questions reordered successfully",

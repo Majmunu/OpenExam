@@ -253,11 +253,11 @@ export default function NewQuestionPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="examId">所属考试 *</Label>
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="examId" className="text-sm font-medium text-gray-700">所属考试 *</Label>
                 <Select value={formData.examId} onValueChange={(value) => handleSelectChange("examId", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="选择考试" />
                   </SelectTrigger>
                   <SelectContent>
@@ -270,10 +270,10 @@ export default function NewQuestionPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="type">题目类型 *</Label>
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="type" className="text-sm font-medium text-gray-700">题目类型 *</Label>
                 <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="选择题目类型" />
                   </SelectTrigger>
                   <SelectContent>
@@ -285,8 +285,8 @@ export default function NewQuestionPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="points">分值</Label>
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="points" className="text-sm font-medium text-gray-700">分值</Label>
                 <Input
                   id="points"
                   name="points"
@@ -295,12 +295,13 @@ export default function NewQuestionPage() {
                   value={formData.points}
                   onChange={handleChange}
                   placeholder="1"
+                  className="h-10 w-full"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">题目内容 *</Label>
+              <Label htmlFor="title" className="text-sm font-medium text-gray-700">题目内容 *</Label>
               <Textarea
                 id="title"
                 name="title"
@@ -309,6 +310,7 @@ export default function NewQuestionPage() {
                 required
                 placeholder="请输入题目内容..."
                 rows={4}
+                className="resize-none"
               />
             </div>
 
@@ -316,7 +318,7 @@ export default function NewQuestionPage() {
 
             {(formData.type === "SHORT_ANSWER" || formData.type === "FILL_BLANK") && (
               <div className="space-y-2">
-                <Label htmlFor="answer">正确答案 *</Label>
+                <Label htmlFor="answer" className="text-sm font-medium text-gray-700">正确答案 *</Label>
                 <Input
                   id="answer"
                   name="answer"
@@ -324,6 +326,7 @@ export default function NewQuestionPage() {
                   onChange={handleChange}
                   required
                   placeholder="请输入正确答案..."
+                  className="h-10"
                 />
               </div>
             )}
