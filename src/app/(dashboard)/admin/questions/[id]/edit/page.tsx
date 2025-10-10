@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
-import QuestionEditor from "@/components/QuestionEditor"
 
 interface Exam {
   id: string
@@ -165,7 +165,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="outline" size="sm" asChild>
-          <Link href={fromExam ? `/admin/exams/${fromExam}` : "/admin/questions"}>
+          <Link href="/admin/questions">
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回
           </Link>
@@ -231,28 +231,48 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
               </div>
             </div>
 
-            <QuestionEditor
-              question={{
-                id: formData.id,
-                type: formData.type,
-                title: formData.title,
-                options: formData.options ? formData.options.split('\n').filter(opt => opt.trim()) : [],
-                answer: formData.answer,
-                points: formData.points
-              }}
-              onUpdate={(updatedQuestion) => {
-                setFormData(prev => ({
-                  ...prev,
-                  title: updatedQuestion.title,
-                  options: updatedQuestion.options.join('\n'),
-                  answer: updatedQuestion.answer
-                }))
-              }}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="title">题目内容 *</Label>
+              <Textarea
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                placeholder="请输入题目内容..."
+                rows={4}
+              />
+            </div>
+
+            {renderOptionsField()}
+
+            <div className="space-y-2">
+              <Label htmlFor="answer">正确答案 *</Label>
+              {formData.type === "MULTIPLE_CHOICE" ? (
+                <Textarea
+                  id="answer"
+                  name="answer"
+                  value={formData.answer}
+                  onChange={handleChange}
+                  required
+                  placeholder="多个答案用逗号分隔，如：选项1,选项2"
+                  rows={2}
+                />
+              ) : (
+                <Input
+                  id="answer"
+                  name="answer"
+                  value={formData.answer}
+                  onChange={handleChange}
+                  required
+                  placeholder="请输入正确答案..."
+                />
+              )}
+            </div>
 
             <div className="flex justify-end space-x-4">
               <Button type="button" variant="outline" asChild>
-                <Link href={fromExam ? `/admin/exams/${fromExam}` : "/admin/questions"}>取消</Link>
+                <Link href="/admin/questions">取消</Link>
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading && <Save className="h-4 w-4 mr-2 animate-spin" />}
