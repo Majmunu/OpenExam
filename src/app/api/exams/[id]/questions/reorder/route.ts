@@ -34,26 +34,27 @@ export async function PUT(
     // 由于当前schema没有order字段，我们使用一个简单的方法：
     // 通过删除和重新创建题目来保持顺序
     // 这不是最优解，但可以工作
-    
+
     // 获取所有题目数据
     const questions = await prisma.question.findMany({
       where: { examId: id },
       orderBy: { createdAt: 'asc' }
     })
-    
+
     // 按照新的顺序重新排列题目
-    const reorderedQuestions = questionIds.map(id => 
+    const reorderedQuestions = questionIds.map(id =>
       questions.find(q => q.id === id)
     ).filter(Boolean)
-    
+
     // 删除所有题目
     await prisma.question.deleteMany({
       where: { examId: id }
     })
-    
+
     // 按照新顺序重新创建题目
     for (let i = 0; i < reorderedQuestions.length; i++) {
       const question = reorderedQuestions[i]
+      if (!question) continue
       await prisma.question.create({
         data: {
           examId: question.examId,
